@@ -6,33 +6,17 @@ interface BaseEntity {
 }
 
 export class LocalStorageAdapter<T extends BaseEntity> implements StorageAdapter<T> {
-  private memoryFallback: T[] | null = null
-  private useMemory = false
+  private memoryFallback: T[] = []
 
-  constructor(public readonly key: string) {
-    this.checkStorageAvailability()
-  }
+  constructor(public readonly key: string) {}
 
-  private checkStorageAvailability(): void {
-    try {
-      const testKey = '__storage_test__'
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(testKey, testKey)
-        localStorage.removeItem(testKey)
-      } else {
-        this.useMemory = true
-        this.memoryFallback = []
-      }
-    } catch {
-      this.useMemory = true
-      this.memoryFallback = []
-      console.warn('LocalStorage non disponible, utilisation du stockage en mémoire')
-    }
+  private isClient(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
   }
 
   private getItems(): T[] {
-    if (this.useMemory) {
-      return this.memoryFallback || []
+    if (!this.isClient()) {
+      return this.memoryFallback
     }
     try {
       const data = localStorage.getItem(this.key)
@@ -44,7 +28,7 @@ export class LocalStorageAdapter<T extends BaseEntity> implements StorageAdapter
   }
 
   private setItems(items: T[]): void {
-    if (this.useMemory) {
+    if (!this.isClient()) {
       this.memoryFallback = items
       return
     }
