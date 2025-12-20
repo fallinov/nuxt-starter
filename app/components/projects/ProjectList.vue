@@ -6,23 +6,48 @@ const tasksStore = useTasksStore()
 const { confirm } = useConfirm()
 const { success, error } = useNotification()
 
-const isModalOpen = ref(false)
+const isCreateModalOpen = ref(false)
+const isEditModalOpen = ref(false)
+const selectedProject = ref<Project | null>(null)
 
-const openModal = () => {
-  isModalOpen.value = true
+const openCreateModal = () => {
+  isCreateModalOpen.value = true
 }
 
-const closeModal = () => {
-  isModalOpen.value = false
+const closeCreateModal = () => {
+  isCreateModalOpen.value = false
+}
+
+const openEditModal = (project: Project) => {
+  selectedProject.value = project
+  isEditModalOpen.value = true
+}
+
+const closeEditModal = () => {
+  selectedProject.value = null
+  isEditModalOpen.value = false
 }
 
 const handleCreate = async (data: { name: string }) => {
   try {
     await projectsStore.create(data)
     success('Projet créé', `Le projet "${data.name}" a été créé avec succès.`)
-    closeModal()
+    closeCreateModal()
   } catch (e) {
     error('Erreur', 'Impossible de créer le projet.')
+    console.error(e)
+  }
+}
+
+const handleEdit = async (data: { name: string }) => {
+  if (!selectedProject.value) return
+
+  try {
+    await projectsStore.update(selectedProject.value.id, data)
+    success('Projet modifié', `Le projet "${data.name}" a été modifié avec succès.`)
+    closeEditModal()
+  } catch (e) {
+    error('Erreur', 'Impossible de modifier le projet.')
     console.error(e)
   }
 }
@@ -64,7 +89,7 @@ onMounted(async () => {
       <UButton
         label="Nouveau projet"
         icon="i-heroicons-plus"
-        @click="openModal"
+        @click="openCreateModal"
       />
     </div>
 
@@ -85,7 +110,7 @@ onMounted(async () => {
       description="Créez votre premier projet pour commencer à organiser vos tâches."
       action-label="Créer un projet"
       icon="i-heroicons-folder"
-      @action="openModal"
+      @action="openCreateModal"
     />
 
     <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -94,11 +119,13 @@ onMounted(async () => {
         :key="project.id"
         :project="project"
         :task-count="tasksStore.taskCountByProject(project.id)"
+        @edit="openEditModal"
         @delete="handleDelete"
       />
     </div>
 
-    <UModal v-model="isModalOpen">
+    <!-- Modal de création -->
+    <UModal v-model="isCreateModalOpen">
       <UCard>
         <template #header>
           <h2 class="text-lg font-semibold">Nouveau projet</h2>
@@ -106,7 +133,23 @@ onMounted(async () => {
         <ProjectForm
           submit-label="Créer"
           @submit="handleCreate"
-          @cancel="closeModal"
+          @cancel="closeCreateModal"
+        />
+      </UCard>
+    </UModal>
+
+    <!-- Modal d'édition -->
+    <UModal v-model="isEditModalOpen">
+      <UCard>
+        <template #header>
+          <h2 class="text-lg font-semibold">Modifier le projet</h2>
+        </template>
+        <ProjectForm
+          v-if="selectedProject"
+          :initial-data="{ name: selectedProject.name }"
+          submit-label="Enregistrer"
+          @submit="handleEdit"
+          @cancel="closeEditModal"
         />
       </UCard>
     </UModal>

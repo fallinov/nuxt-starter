@@ -9,6 +9,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
+  edit: [project: Project]
   delete: [project: Project]
 }>()
 
@@ -43,6 +44,11 @@ const formattedDate = computed(() => {
       <UDropdown
         :items="[
           [{
+            label: 'Modifier',
+            icon: 'i-heroicons-pencil-square',
+            click: () => emit('edit', props.project)
+          },
+          {
             label: 'Voir les tâches',
             icon: 'i-heroicons-eye',
             to: { path: '/tasks', query: { projectId: props.project.id } }
