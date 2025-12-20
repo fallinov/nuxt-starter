@@ -83,9 +83,9 @@ export class LocalStorageAdapter<T extends BaseEntity> implements StorageAdapter
       throw new Error(`Élément avec l'id ${id} non trouvé`)
     }
     const { id: _id, createdAt: _createdAt, ...updateData } = data as Record<string, unknown>
-    items[index] = { ...items[index], ...updateData }
+    items[index] = { ...items[index], ...updateData } as T
     this.setItems(items)
-    return items[index]
+    return items[index] as T
   }
 
   async delete(id: string): Promise<void> {

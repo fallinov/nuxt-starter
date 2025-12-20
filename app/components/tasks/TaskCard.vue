@@ -37,7 +37,7 @@ const isOverdue = computed(() => {
         
         <div class="flex flex-wrap items-center gap-2 mt-2">
           <UBadge
-            :color="PRIORITY_COLORS[props.task.priority]"
+            :color="PRIORITY_COLORS[props.task.priority] as any"
             variant="subtle"
             size="xs"
           >

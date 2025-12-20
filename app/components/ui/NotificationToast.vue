@@ -11,13 +11,13 @@ const getIcon = (type: string) => {
   }
 }
 
-const getColor = (type: string) => {
+const getColor = (type: string): any => {
   switch (type) {
     case 'success': return 'green'
     case 'error': return 'red'
     case 'warning': return 'yellow'
     case 'info': return 'blue'
-    default: return 'gray'
+    default: return 'primary'
   }
 }
 </script>

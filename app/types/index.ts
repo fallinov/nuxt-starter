@@ -35,8 +35,8 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
   high: 'Haute'
 }
 
-export const PRIORITY_COLORS: Record<Priority, string> = {
+export const PRIORITY_COLORS = {
   low: 'gray',
   medium: 'yellow',
   high: 'red'
-}
+} as const

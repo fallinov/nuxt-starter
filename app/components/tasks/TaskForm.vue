@@ -30,9 +30,9 @@ const formatDateForInput = (dateString?: string): string => {
   if (!dateString) {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.toISOString().split('T')[0]
+    return tomorrow.toISOString().split('T')[0] as string
   }
-  return dateString.split('T')[0]
+  return dateString.split('T')[0] as string
 }
 
 const state = reactive({

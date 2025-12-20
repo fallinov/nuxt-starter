@@ -63,21 +63,23 @@ onMounted(() => {
     />
 
     <USelectMenu
-      v-model="selectedProjectId"
+      :model-value="selectedProjectId"
       :options="projectOptions"
       value-attribute="value"
       option-attribute="label"
       placeholder="Projet"
       class="w-full sm:w-48"
+      @update:model-value="(val: any) => selectedProjectId = val"
     />
 
     <USelectMenu
-      v-model="selectedPriority"
+      :model-value="selectedPriority"
       :options="priorityOptions"
       value-attribute="value"
       option-attribute="label"
       placeholder="Priorité"
       class="w-full sm:w-40"
+      @update:model-value="(val: any) => selectedPriority = val"
     />
 
     <UButton

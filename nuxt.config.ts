@@ -10,8 +10,8 @@ export default defineNuxtConfig({
     typeCheck: true
   },
 
-  ui: {
-    icons: ['heroicons']
+  icon: {
+    serverBundle: 'local'
   },
 
   pinia: {

@@ -22,7 +22,7 @@ const recentTasks = computed(() => {
 const loadDemoData = async () => {
   isDemoLoading.value = true
   try {
-    const { seedData } = await import('~/seeds/demo')
+    const { seedData } = await import('../../seeds/demo')
     
     await projectsStore.setAll(seedData.projects)
     await tasksStore.setAll(seedData.tasks)
