@@ -63,7 +63,7 @@ onMounted(() => {
     />
 
     <USelectMenu
-      :model-value="selectedProjectId"
+      :model-value="selectedProjectId as any"
       :options="projectOptions"
       value-attribute="value"
       option-attribute="label"
@@ -73,7 +73,7 @@ onMounted(() => {
     />
 
     <USelectMenu
-      :model-value="selectedPriority"
+      :model-value="selectedPriority as any"
       :options="priorityOptions"
       value-attribute="value"
       option-attribute="label"
