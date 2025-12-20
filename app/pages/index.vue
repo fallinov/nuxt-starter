@@ -57,35 +57,36 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-bold">Dashboard</h1>
-      <div class="flex gap-2">
-        <UButton
-          v-if="stats.projects === 0 && stats.tasks === 0"
-          color="primary"
-          variant="soft"
-          icon="i-heroicons-arrow-down-tray"
-          label="Charger données démo"
-          :loading="isDemoLoading"
-          @click="loadDemoData"
-        />
-        <UButton
-          v-else
-          color="gray"
-          variant="ghost"
-          icon="i-heroicons-trash"
-          label="Réinitialiser"
-          @click="clearAllData"
-        />
+  <ClientOnly>
+    <div>
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold">Dashboard</h1>
+        <div class="flex gap-2">
+          <UButton
+            v-if="stats.projects === 0 && stats.tasks === 0"
+            color="primary"
+            variant="soft"
+            icon="i-heroicons-arrow-down-tray"
+            label="Charger données démo"
+            :loading="isDemoLoading"
+            @click="loadDemoData"
+          />
+          <UButton
+            v-else
+            color="gray"
+            variant="ghost"
+            icon="i-heroicons-trash"
+            label="Réinitialiser"
+            @click="clearAllData"
+          />
+        </div>
       </div>
-    </div>
 
-    <div v-if="isLoading" class="flex justify-center py-12">
-      <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
-    </div>
+      <div v-if="isLoading" class="flex justify-center py-12">
+        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+      </div>
 
-    <template v-else>
+      <template v-else>
       <!-- Stats cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <UCard>
@@ -204,5 +205,12 @@ onMounted(async () => {
         </UCard>
       </div>
     </template>
-  </div>
+    </div>
+
+    <template #fallback>
+      <div class="flex justify-center py-12">
+        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+      </div>
+    </template>
+  </ClientOnly>
 </template>
