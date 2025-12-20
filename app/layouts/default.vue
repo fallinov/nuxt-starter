@@ -54,7 +54,7 @@ const isDark = computed(() => colorMode.value === 'dark')
       <slot />
     </main>
 
-    <ConfirmModal />
-    <NotificationToast />
+    <UiConfirmModal />
+    <UiNotificationToast />
   </div>
 </template>
