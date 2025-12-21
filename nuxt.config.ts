@@ -1,13 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from '@tailwindcss/vite'
-
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui',
+    '@pinia/nuxt'
+  ],
 
-  modules: ['@nuxt/ui', '@pinia/nuxt'],
+  devtools: {
+    enabled: true
+  },
 
-  css: ['~/assets/main.css'],
+  css: ['~/assets/css/main.css'],
+
+  compatibilityDate: '2025-01-15',
 
   typescript: {
     strict: true,
@@ -19,12 +24,6 @@ export default defineNuxtConfig({
   },
 
   pinia: {
-    storesDirs: ['./app/stores/**']
-  },
-
-  vite: {
-    plugins: [
-      ...(tailwindcss() as any[])
-    ]
+    storesDirs: ['app/stores']
   }
 })

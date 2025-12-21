@@ -4,7 +4,7 @@ import type { Task, CreateTask, UpdateTask } from '~/types'
 const tasksStore = useTasksStore()
 const projectsStore = useProjectsStore()
 const { confirm } = useConfirm()
-const { success, error } = useNotification()
+const toast = useToast()
 const route = useRoute()
 
 const isCreateModalOpen = ref(false)
@@ -37,10 +37,10 @@ const closeEditModal = () => {
 const handleCreate = async (data: CreateTask) => {
   try {
     await tasksStore.create(data)
-    success('Tâche créée', 'La tâche a été créée avec succès.')
+    toast.add({ title: 'Tâche créée', description: 'La tâche a été créée avec succès.', color: 'success' })
     closeCreateModal()
   } catch (e) {
-    error('Erreur', 'Impossible de créer la tâche.')
+    toast.add({ title: 'Erreur', description: 'Impossible de créer la tâche.', color: 'error' })
     console.error(e)
   }
 }
@@ -50,10 +50,10 @@ const handleUpdate = async (data: UpdateTask) => {
   
   try {
     await tasksStore.update(selectedTask.value.id, data)
-    success('Tâche modifiée', 'La tâche a été modifiée avec succès.')
+    toast.add({ title: 'Tâche modifiée', description: 'La tâche a été modifiée avec succès.', color: 'success' })
     closeEditModal()
   } catch (e) {
-    error('Erreur', 'Impossible de modifier la tâche.')
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la tâche.', color: 'error' })
     console.error(e)
   }
 }
@@ -69,9 +69,9 @@ const handleDelete = async (task: Task) => {
   if (confirmed) {
     try {
       await tasksStore.remove(task.id)
-      success('Tâche supprimée', 'La tâche a été supprimée.')
+      toast.add({ title: 'Tâche supprimée', description: 'La tâche a été supprimée.', color: 'success' })
     } catch (e) {
-      error('Erreur', 'Impossible de supprimer la tâche.')
+      toast.add({ title: 'Erreur', description: 'Impossible de supprimer la tâche.', color: 'error' })
       console.error(e)
     }
   }

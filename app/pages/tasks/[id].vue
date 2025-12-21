@@ -5,7 +5,7 @@ const route = useRoute()
 const router = useRouter()
 const tasksStore = useTasksStore()
 const projectsStore = useProjectsStore()
-const { success, error } = useNotification()
+const toast = useToast()
 
 const taskId = computed(() => route.params.id as string)
 const task = computed(() => tasksStore.getById(taskId.value))
@@ -15,10 +15,10 @@ const isLoading = ref(true)
 const handleUpdate = async (data: UpdateTask) => {
   try {
     await tasksStore.update(taskId.value, data)
-    success('Tâche modifiée', 'La tâche a été modifiée avec succès.')
+    toast.add({ title: 'Tâche modifiée', description: 'La tâche a été modifiée avec succès.', color: 'success' })
     router.push('/tasks')
   } catch (e) {
-    error('Erreur', 'Impossible de modifier la tâche.')
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la tâche.', color: 'error' })
     console.error(e)
   }
 }
@@ -35,7 +35,7 @@ onMounted(async () => {
   isLoading.value = false
   
   if (!task.value) {
-    error('Erreur', 'Tâche non trouvée.')
+    toast.add({ title: 'Erreur', description: 'Tâche non trouvée.', color: 'error' })
     router.push('/tasks')
   }
 })

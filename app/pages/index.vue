@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
-const { success, error } = useNotification()
+const toast = useToast()
 
 const isLoading = ref(true)
 const isDemoLoading = ref(false)
@@ -27,9 +27,9 @@ const loadDemoData = async () => {
     await projectsStore.setAll(seedData.projects)
     await tasksStore.setAll(seedData.tasks)
     
-    success('Données chargées', 'Les données de démonstration ont été chargées.')
+    toast.add({ title: 'Données chargées', description: 'Les données de démonstration ont été chargées.', color: 'success' })
   } catch (e) {
-    error('Erreur', 'Impossible de charger les données de démonstration.')
+    toast.add({ title: 'Erreur', description: 'Impossible de charger les données de démonstration.', color: 'error' })
     console.error(e)
   } finally {
     isDemoLoading.value = false
@@ -40,9 +40,9 @@ const clearAllData = async () => {
   try {
     await projectsStore.clear()
     await tasksStore.clear()
-    success('Données supprimées', 'Toutes les données ont été supprimées.')
+    toast.add({ title: 'Données supprimées', description: 'Toutes les données ont été supprimées.', color: 'success' })
   } catch (e) {
-    error('Erreur', 'Impossible de supprimer les données.')
+    toast.add({ title: 'Erreur', description: 'Impossible de supprimer les données.', color: 'error' })
     console.error(e)
   }
 }

@@ -4,7 +4,7 @@ import type { Project } from '~/types'
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
 const { confirm } = useConfirm()
-const { success, error } = useNotification()
+const toast = useToast()
 
 const isCreateModalOpen = ref(false)
 const isEditModalOpen = ref(false)
@@ -31,10 +31,10 @@ const closeEditModal = () => {
 const handleCreate = async (data: { name: string }) => {
   try {
     await projectsStore.create(data)
-    success('Projet créé', `Le projet "${data.name}" a été créé avec succès.`)
+    toast.add({ title: 'Projet créé', description: `Le projet "${data.name}" a été créé avec succès.`, color: 'success' })
     closeCreateModal()
   } catch (e) {
-    error('Erreur', 'Impossible de créer le projet.')
+    toast.add({ title: 'Erreur', description: 'Impossible de créer le projet.', color: 'error' })
     console.error(e)
   }
 }
@@ -44,10 +44,10 @@ const handleEdit = async (data: { name: string }) => {
 
   try {
     await projectsStore.update(selectedProject.value.id, data)
-    success('Projet modifié', `Le projet "${data.name}" a été modifié avec succès.`)
+    toast.add({ title: 'Projet modifié', description: `Le projet "${data.name}" a été modifié avec succès.`, color: 'success' })
     closeEditModal()
   } catch (e) {
-    error('Erreur', 'Impossible de modifier le projet.')
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier le projet.', color: 'error' })
     console.error(e)
   }
 }
@@ -66,9 +66,9 @@ const handleDelete = async (project: Project) => {
   if (confirmed) {
     try {
       await projectsStore.remove(project.id)
-      success('Projet supprimé', `Le projet "${project.name}" a été supprimé.`)
+      toast.add({ title: 'Projet supprimé', description: `Le projet "${project.name}" a été supprimé.`, color: 'success' })
     } catch (e) {
-      error('Erreur', 'Impossible de supprimer le projet.')
+      toast.add({ title: 'Erreur', description: 'Impossible de supprimer le projet.', color: 'error' })
       console.error(e)
     }
   }
