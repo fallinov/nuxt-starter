@@ -3,7 +3,7 @@ interface ConfirmOptions {
   message: string
   confirmLabel?: string
   cancelLabel?: string
-  confirmColor?: 'red' | 'primary' | 'gray'
+  confirmColor?: 'error' | 'primary' | 'neutral'
 }
 
 interface ConfirmState {

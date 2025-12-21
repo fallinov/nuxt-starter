@@ -73,7 +73,7 @@ onMounted(async () => {
           />
           <UButton
             v-else
-            color="gray"
+            color="neutral"
             variant="ghost"
             icon="i-heroicons-trash"
             label="Réinitialiser"
@@ -147,7 +147,7 @@ onMounted(async () => {
               <UButton
                 to="/tasks"
                 variant="ghost"
-                color="gray"
+                color="neutral"
                 size="sm"
                 trailing-icon="i-heroicons-arrow-right"
                 label="Voir tout"
@@ -179,7 +179,7 @@ onMounted(async () => {
               <UButton
                 to="/projects"
                 variant="ghost"
-                color="gray"
+                color="neutral"
                 size="sm"
                 trailing-icon="i-heroicons-arrow-right"
                 label="Voir tout"

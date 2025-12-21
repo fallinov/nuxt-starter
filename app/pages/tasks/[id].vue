@@ -50,7 +50,7 @@ definePageMeta({
     <div class="flex items-center gap-4 mb-6">
       <UButton
         icon="i-heroicons-arrow-left"
-        color="gray"
+        color="neutral"
         variant="ghost"
         to="/tasks"
         aria-label="Retour"

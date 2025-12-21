@@ -63,7 +63,7 @@ const formattedDate = computed(() => {
         :popper="{ placement: 'bottom-end' }"
       >
         <UButton
-          color="gray"
+          color="neutral"
           variant="ghost"
           icon="i-heroicons-ellipsis-vertical"
           aria-label="Actions du projet"

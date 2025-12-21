@@ -84,7 +84,7 @@ onMounted(() => {
 
     <UButton
       v-if="hasActiveFilters"
-      color="gray"
+      color="neutral"
       variant="ghost"
       icon="i-heroicons-x-mark"
       label="Réinitialiser"

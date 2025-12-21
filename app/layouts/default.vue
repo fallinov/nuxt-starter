@@ -41,7 +41,7 @@ const isDark = computed(() => colorMode.value === 'dark')
 
           <UButton
             :icon="isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'"
-            color="gray"
+            color="neutral"
             variant="ghost"
             aria-label="Basculer le mode sombre"
             @click="toggleDarkMode"

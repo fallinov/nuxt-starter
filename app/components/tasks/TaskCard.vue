@@ -37,7 +37,7 @@ const isOverdue = computed(() => {
         
         <div class="flex flex-wrap items-center gap-2 mt-2">
           <UBadge
-            :color="PRIORITY_COLORS[props.task.priority] as any"
+            :color="PRIORITY_COLORS[props.task.priority]"
             variant="subtle"
             size="xs"
           >
@@ -79,7 +79,7 @@ const isOverdue = computed(() => {
         :popper="{ placement: 'bottom-end' }"
       >
         <UButton
-          color="gray"
+          color="neutral"
           variant="ghost"
           icon="i-heroicons-ellipsis-vertical"
           aria-label="Actions de la tâche"

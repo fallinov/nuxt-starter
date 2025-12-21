@@ -6,7 +6,6 @@ const { isOpen, options, handleConfirm, handleCancel } = useConfirm()
   <UModal
     :model-value="isOpen"
     :prevent-close="true"
-    :ui="{ width: 'sm:max-w-md' }"
   >
     <UCard>
       <template #header>
@@ -28,7 +27,7 @@ const { isOpen, options, handleConfirm, handleCancel } = useConfirm()
       <template #footer>
         <div class="flex justify-end gap-3">
           <UButton
-            color="gray"
+            color="neutral"
             variant="ghost"
             :label="options.cancelLabel"
             @click="handleCancel"

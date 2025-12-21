@@ -50,7 +50,7 @@ const onSubmit = (event: FormSubmitEvent<Schema>) => {
 
     <div class="flex justify-end gap-3 pt-4">
       <UButton
-        color="gray"
+        color="neutral"
         variant="ghost"
         label="Annuler"
         @click="emit('cancel')"

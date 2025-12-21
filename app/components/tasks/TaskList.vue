@@ -63,7 +63,7 @@ const handleDelete = async (task: Task) => {
     title: 'Supprimer la tâche',
     message: `Êtes-vous sûr de vouloir supprimer "${task.label}" ?`,
     confirmLabel: 'Supprimer',
-    confirmColor: 'red'
+    confirmColor: 'error'
   })
 
   if (confirmed) {
@@ -111,14 +111,14 @@ onMounted(async () => {
 
     <UAlert
       v-else-if="tasksStore.error"
-      color="red"
+      color="error"
       icon="i-heroicons-exclamation-circle"
       :title="tasksStore.error"
     />
 
     <UAlert
       v-else-if="projectsStore.items.length === 0"
-      color="yellow"
+      color="warning"
       icon="i-heroicons-exclamation-triangle"
       title="Aucun projet disponible"
       description="Créez d'abord un projet avant d'ajouter des tâches."
