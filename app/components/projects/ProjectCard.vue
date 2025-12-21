@@ -46,7 +46,7 @@ const formattedDate = computed(() => {
           [{
             label: 'Modifier',
             icon: 'i-lucide-pencil',
-            click: () => emit('edit', props.project)
+            onSelect: () => emit('edit', props.project)
           },
           {
             label: 'Voir les tâches',
@@ -57,7 +57,7 @@ const formattedDate = computed(() => {
             label: 'Supprimer',
             icon: 'i-lucide-trash-2',
             color: 'error',
-            click: () => emit('delete', props.project)
+            onSelect: () => emit('delete', props.project)
           }]
         ]"
         :content="{ align: 'end' }"

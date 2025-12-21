@@ -67,13 +67,13 @@ const isOverdue = computed(() => {
           [{
             label: 'Modifier',
             icon: 'i-lucide-pencil',
-            click: () => emit('edit', props.task)
+            onSelect: () => emit('edit', props.task)
           }],
           [{
             label: 'Supprimer',
             icon: 'i-lucide-trash-2',
             color: 'error',
-            click: () => emit('delete', props.task)
+            onSelect: () => emit('delete', props.task)
           }]
         ]"
         :content="{ align: 'end' }"
