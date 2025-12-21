@@ -31,11 +31,11 @@ const formattedDate = computed(() => {
         </h3>
         <div class="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
           <span class="flex items-center gap-1">
-            <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+            <UIcon name="i-lucide-calendar" class="size-4" />
             {{ formattedDate }}
           </span>
           <span class="flex items-center gap-1">
-            <UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
+            <UIcon name="i-lucide-clipboard-list" class="size-4" />
             {{ props.taskCount }} tâche{{ props.taskCount !== 1 ? 's' : '' }}
           </span>
         </div>
@@ -45,17 +45,17 @@ const formattedDate = computed(() => {
         :items="[
           [{
             label: 'Modifier',
-            icon: 'i-heroicons-pencil-square',
+            icon: 'i-lucide-pencil',
             click: () => emit('edit', props.project)
           },
           {
             label: 'Voir les tâches',
-            icon: 'i-heroicons-eye',
+            icon: 'i-lucide-eye',
             to: { path: '/tasks', query: { projectId: props.project.id } }
           }],
           [{
             label: 'Supprimer',
-            icon: 'i-heroicons-trash',
+            icon: 'i-lucide-trash-2',
             iconClass: 'text-red-500',
             click: () => emit('delete', props.project)
           }]
@@ -65,7 +65,7 @@ const formattedDate = computed(() => {
         <UButton
           color="neutral"
           variant="ghost"
-          icon="i-heroicons-ellipsis-vertical"
+          icon="i-lucide-ellipsis-vertical"
           aria-label="Actions du projet"
         />
       </UDropdown>

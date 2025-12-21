@@ -7,7 +7,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  icon: 'i-heroicons-inbox',
+  icon: 'i-lucide-inbox',
   description: undefined,
   actionLabel: undefined
 })
@@ -21,7 +21,7 @@ const emit = defineEmits<{
   <div class="flex flex-col items-center justify-center py-12 text-center">
     <UIcon
       :name="props.icon"
-      class="w-16 h-16 text-gray-400 dark:text-gray-500 mb-4"
+      class="size-16 text-gray-400 dark:text-gray-500 mb-4"
     />
     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
       {{ props.title }}
@@ -35,7 +35,7 @@ const emit = defineEmits<{
     <UButton
       v-if="props.actionLabel"
       :label="props.actionLabel"
-      icon="i-heroicons-plus"
+      icon="i-lucide-plus"
       @click="emit('action')"
     />
   </div>

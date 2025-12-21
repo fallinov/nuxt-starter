@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { createStorageService, STORAGE_KEYS } from '~/services/storage'
+import { useTasksStore } from '~/stores/tasks'
 import type { Project, CreateProject, UpdateProject } from '~/types'
 
 const storage = createStorageService<Project>(STORAGE_KEYS.PROJECTS)

@@ -83,9 +83,12 @@ describe('useProjectsStore', () => {
 
   it('removes a project', async () => {
     const store = useProjectsStore()
+    // Initialize tasks store so it's available for cascade delete
+    useTasksStore()
+
     const project = await store.create({ name: 'To Delete' })
     await store.remove(project.id)
-    
+
     expect(store.items).toHaveLength(0)
   })
 
@@ -108,8 +111,10 @@ describe('useProjectsStore', () => {
   it('returns sorted projects by date', async () => {
     const store = useProjectsStore()
     await store.create({ name: 'First' })
+    // Add small delay to ensure different timestamps
+    await new Promise(r => setTimeout(r, 10))
     await store.create({ name: 'Second' })
-    
+
     expect(store.sortedByDate[0].name).toBe('Second')
     expect(store.sortedByDate[1].name).toBe('First')
   })

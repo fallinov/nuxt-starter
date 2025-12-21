@@ -57,7 +57,7 @@ onMounted(() => {
   <div class="flex flex-col sm:flex-row gap-4">
     <UInput
       v-model="searchQuery"
-      icon="i-heroicons-magnifying-glass"
+      icon="i-lucide-search"
       placeholder="Rechercher..."
       class="flex-1"
     />
@@ -86,7 +86,7 @@ onMounted(() => {
       v-if="hasActiveFilters"
       color="neutral"
       variant="ghost"
-      icon="i-heroicons-x-mark"
+      icon="i-lucide-x"
       label="Réinitialiser"
       @click="resetFilters"
     />

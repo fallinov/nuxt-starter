@@ -88,33 +88,33 @@ onMounted(async () => {
       <h1 class="text-2xl font-bold">Projets</h1>
       <UButton
         label="Nouveau projet"
-        icon="i-heroicons-plus"
+        icon="i-lucide-plus"
         @click="openCreateModal"
       />
     </div>
 
     <div v-if="projectsStore.loading" class="flex justify-center py-12">
-      <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
     </div>
 
     <UAlert
       v-else-if="projectsStore.error"
       color="error"
-      icon="i-heroicons-exclamation-circle"
+      icon="i-lucide-circle-x"
       :title="projectsStore.error"
     />
 
-    <EmptyState
+    <UiEmptyState
       v-else-if="projectsStore.items.length === 0"
       title="Aucun projet"
       description="Créez votre premier projet pour commencer à organiser vos tâches."
       action-label="Créer un projet"
-      icon="i-heroicons-folder"
+      icon="i-lucide-folder"
       @action="openCreateModal"
     />
 
     <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <ProjectCard
+      <ProjectsProjectCard
         v-for="project in projectsStore.sortedByDate"
         :key="project.id"
         :project="project"
@@ -130,7 +130,7 @@ onMounted(async () => {
         <template #header>
           <h2 class="text-lg font-semibold">Nouveau projet</h2>
         </template>
-        <ProjectForm
+        <ProjectsProjectForm
           submit-label="Créer"
           @submit="handleCreate"
           @cancel="closeCreateModal"
@@ -144,7 +144,7 @@ onMounted(async () => {
         <template #header>
           <h2 class="text-lg font-semibold">Modifier le projet</h2>
         </template>
-        <ProjectForm
+        <ProjectsProjectForm
           v-if="selectedProject"
           :initial-data="{ name: selectedProject.name }"
           submit-label="Enregistrer"
