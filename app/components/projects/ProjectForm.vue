@@ -36,7 +36,7 @@ const onSubmit = (event: FormSubmitEvent<Schema>) => {
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormGroup
+    <UFormField
       label="Nom du projet"
       name="name"
       required
@@ -46,7 +46,7 @@ const onSubmit = (event: FormSubmitEvent<Schema>) => {
         placeholder="Ex: Site vitrine, Application mobile..."
         autofocus
       />
-    </UFormGroup>
+    </UFormField>
 
     <div class="flex justify-end gap-3 pt-4">
       <UButton

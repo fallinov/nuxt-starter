@@ -41,7 +41,7 @@ const formattedDate = computed(() => {
         </div>
       </div>
 
-      <UDropdown
+      <UDropdownMenu
         :items="[
           [{
             label: 'Modifier',
@@ -56,11 +56,11 @@ const formattedDate = computed(() => {
           [{
             label: 'Supprimer',
             icon: 'i-lucide-trash-2',
-            iconClass: 'text-red-500',
+            color: 'error',
             click: () => emit('delete', props.project)
           }]
         ]"
-        :popper="{ placement: 'bottom-end' }"
+        :content="{ align: 'end' }"
       >
         <UButton
           color="neutral"
@@ -68,7 +68,7 @@ const formattedDate = computed(() => {
           icon="i-lucide-ellipsis-vertical"
           aria-label="Actions du projet"
         />
-      </UDropdown>
+      </UDropdownMenu>
     </div>
   </UCard>
 </template>

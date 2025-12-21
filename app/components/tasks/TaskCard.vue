@@ -62,7 +62,7 @@ const isOverdue = computed(() => {
         </div>
       </div>
 
-      <UDropdown
+      <UDropdownMenu
         :items="[
           [{
             label: 'Modifier',
@@ -72,11 +72,11 @@ const isOverdue = computed(() => {
           [{
             label: 'Supprimer',
             icon: 'i-lucide-trash-2',
-            iconClass: 'text-red-500',
+            color: 'error',
             click: () => emit('delete', props.task)
           }]
         ]"
-        :popper="{ placement: 'bottom-end' }"
+        :content="{ align: 'end' }"
       >
         <UButton
           color="neutral"
@@ -84,7 +84,7 @@ const isOverdue = computed(() => {
           icon="i-lucide-ellipsis-vertical"
           aria-label="Actions de la tâche"
         />
-      </UDropdown>
+      </UDropdownMenu>
     </div>
   </UCard>
 </template>

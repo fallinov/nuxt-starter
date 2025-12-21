@@ -125,25 +125,19 @@ onMounted(async () => {
     </div>
 
     <!-- Modal de création -->
-    <UModal v-model="isCreateModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Nouveau projet</h2>
-        </template>
+    <UModal v-model:open="isCreateModalOpen" title="Nouveau projet">
+      <template #body>
         <ProjectsProjectForm
           submit-label="Créer"
           @submit="handleCreate"
           @cancel="closeCreateModal"
         />
-      </UCard>
+      </template>
     </UModal>
 
     <!-- Modal d'édition -->
-    <UModal v-model="isEditModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Modifier le projet</h2>
-        </template>
+    <UModal v-model:open="isEditModalOpen" title="Modifier le projet">
+      <template #body>
         <ProjectsProjectForm
           v-if="selectedProject"
           :initial-data="{ name: selectedProject.name }"
@@ -151,7 +145,7 @@ onMounted(async () => {
           @submit="handleEdit"
           @cancel="closeEditModal"
         />
-      </UCard>
+      </template>
     </UModal>
   </div>
 </template>

@@ -155,25 +155,19 @@ onMounted(async () => {
     </div>
 
     <!-- Modal de création -->
-    <UModal v-model="isCreateModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Nouvelle tâche</h2>
-        </template>
+    <UModal v-model:open="isCreateModalOpen" title="Nouvelle tâche">
+      <template #body>
         <TasksTaskForm
           submit-label="Créer"
           @submit="handleCreate"
           @cancel="closeCreateModal"
         />
-      </UCard>
+      </template>
     </UModal>
 
     <!-- Modal d'édition -->
-    <UModal v-model="isEditModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Modifier la tâche</h2>
-        </template>
+    <UModal v-model:open="isEditModalOpen" title="Modifier la tâche">
+      <template #body>
         <TasksTaskForm
           v-if="selectedTask"
           :initial-data="selectedTask"
@@ -181,7 +175,7 @@ onMounted(async () => {
           @submit="handleUpdate"
           @cancel="closeEditModal"
         />
-      </UCard>
+      </template>
     </UModal>
   </div>
 </template>
