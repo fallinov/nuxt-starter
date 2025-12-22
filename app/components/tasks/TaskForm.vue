@@ -80,7 +80,7 @@ onMounted(() => {
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormGroup
+    <UFormField
       label="Libellé"
       name="label"
       required
@@ -90,9 +90,9 @@ onMounted(() => {
         placeholder="Décrivez la tâche..."
         autofocus
       />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup
+    <UFormField
       label="Projet"
       name="projectId"
       required
@@ -104,10 +104,10 @@ onMounted(() => {
         option-attribute="label"
         placeholder="Sélectionner un projet"
       />
-    </UFormGroup>
+    </UFormField>
 
     <div class="grid grid-cols-2 gap-4">
-      <UFormGroup
+      <UFormField
         label="Date d'échéance"
         name="dueDate"
         required
@@ -116,9 +116,9 @@ onMounted(() => {
           v-model="state.dueDate"
           type="date"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup
+      <UFormField
         label="Priorité"
         name="priority"
         required
@@ -129,7 +129,7 @@ onMounted(() => {
           value-attribute="value"
           option-attribute="label"
         />
-      </UFormGroup>
+      </UFormField>
     </div>
 
     <div class="flex justify-end gap-3 pt-4">

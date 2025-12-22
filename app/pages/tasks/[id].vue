@@ -49,7 +49,7 @@ definePageMeta({
   <div>
     <div class="flex items-center gap-4 mb-6">
       <UButton
-        icon="i-heroicons-arrow-left"
+        icon="i-lucide-arrow-left"
         color="neutral"
         variant="ghost"
         to="/tasks"
@@ -59,11 +59,11 @@ definePageMeta({
     </div>
 
     <div v-if="isLoading" class="flex justify-center py-12">
-      <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
     </div>
 
     <UCard v-else-if="task" class="max-w-2xl">
-      <TaskForm
+      <TasksTaskForm
         :initial-data="task"
         submit-label="Enregistrer"
         @submit="handleUpdate"

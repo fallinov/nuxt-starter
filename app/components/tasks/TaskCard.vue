@@ -48,7 +48,7 @@ const isOverdue = computed(() => {
             class="flex items-center gap-1 text-sm"
             :class="isOverdue ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'"
           >
-            <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+            <UIcon name="i-lucide-calendar" class="size-4" />
             {{ formattedDueDate }}
           </span>
           
@@ -56,35 +56,35 @@ const isOverdue = computed(() => {
             v-if="props.projectName"
             class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
           >
-            <UIcon name="i-heroicons-folder" class="w-4 h-4" />
+            <UIcon name="i-lucide-folder" class="size-4" />
             {{ props.projectName }}
           </span>
         </div>
       </div>
 
-      <UDropdown
+      <UDropdownMenu
         :items="[
           [{
             label: 'Modifier',
-            icon: 'i-heroicons-pencil-square',
-            click: () => emit('edit', props.task)
+            icon: 'i-lucide-pencil',
+            onSelect: () => emit('edit', props.task)
           }],
           [{
             label: 'Supprimer',
-            icon: 'i-heroicons-trash',
-            iconClass: 'text-red-500',
-            click: () => emit('delete', props.task)
+            icon: 'i-lucide-trash-2',
+            color: 'error',
+            onSelect: () => emit('delete', props.task)
           }]
         ]"
-        :popper="{ placement: 'bottom-end' }"
+        :content="{ align: 'end' }"
       >
         <UButton
           color="neutral"
           variant="ghost"
-          icon="i-heroicons-ellipsis-vertical"
+          icon="i-lucide-ellipsis-vertical"
           aria-label="Actions de la tâche"
         />
-      </UDropdown>
+      </UDropdownMenu>
     </div>
   </UCard>
 </template>

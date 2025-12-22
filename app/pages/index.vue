@@ -66,7 +66,7 @@ onMounted(async () => {
             v-if="stats.projects === 0 && stats.tasks === 0"
             color="primary"
             variant="soft"
-            icon="i-heroicons-arrow-down-tray"
+            icon="i-lucide-download"
             label="Charger données démo"
             :loading="isDemoLoading"
             @click="loadDemoData"
@@ -75,7 +75,7 @@ onMounted(async () => {
             v-else
             color="neutral"
             variant="ghost"
-            icon="i-heroicons-trash"
+            icon="i-lucide-trash-2"
             label="Réinitialiser"
             @click="clearAllData"
           />
@@ -83,7 +83,7 @@ onMounted(async () => {
       </div>
 
       <div v-if="isLoading" class="flex justify-center py-12">
-        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
       </div>
 
       <template v-else>
@@ -92,7 +92,7 @@ onMounted(async () => {
         <UCard>
           <div class="flex items-center gap-4">
             <div class="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/30">
-              <UIcon name="i-heroicons-folder" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
+              <UIcon name="i-lucide-folder" class="size-6 text-primary-600 dark:text-primary-400" />
             </div>
             <div>
               <p class="text-2xl font-bold">{{ stats.projects }}</p>
@@ -104,7 +104,7 @@ onMounted(async () => {
         <UCard>
           <div class="flex items-center gap-4">
             <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <UIcon name="i-heroicons-clipboard-document-list" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <UIcon name="i-lucide-clipboard-list" class="size-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <p class="text-2xl font-bold">{{ stats.tasks }}</p>
@@ -116,7 +116,7 @@ onMounted(async () => {
         <UCard>
           <div class="flex items-center gap-4">
             <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
-              <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-600 dark:text-red-400" />
+              <UIcon name="i-lucide-triangle-alert" class="size-6 text-red-600 dark:text-red-400" />
             </div>
             <div>
               <p class="text-2xl font-bold">{{ stats.highPriority }}</p>
@@ -128,7 +128,7 @@ onMounted(async () => {
         <UCard>
           <div class="flex items-center gap-4">
             <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-              <UIcon name="i-heroicons-clock" class="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+              <UIcon name="i-lucide-clock" class="size-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
               <p class="text-2xl font-bold">{{ stats.overdue }}</p>
@@ -149,7 +149,7 @@ onMounted(async () => {
                 variant="ghost"
                 color="neutral"
                 size="sm"
-                trailing-icon="i-heroicons-arrow-right"
+                trailing-icon="i-lucide-arrow-right"
                 label="Voir tout"
               />
             </div>
@@ -181,7 +181,7 @@ onMounted(async () => {
                 variant="ghost"
                 color="neutral"
                 size="sm"
-                trailing-icon="i-heroicons-arrow-right"
+                trailing-icon="i-lucide-arrow-right"
                 label="Voir tout"
               />
             </div>
@@ -209,7 +209,7 @@ onMounted(async () => {
 
     <template #fallback>
       <div class="flex justify-center py-12">
-        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
       </div>
     </template>
   </ClientOnly>

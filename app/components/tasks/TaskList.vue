@@ -97,29 +97,29 @@ onMounted(async () => {
       <h1 class="text-2xl font-bold">Tâches</h1>
       <UButton
         label="Nouvelle tâche"
-        icon="i-heroicons-plus"
+        icon="i-lucide-plus"
         :disabled="projectsStore.items.length === 0"
         @click="openCreateModal"
       />
     </div>
 
-    <TaskFilters class="mb-6" />
+    <TasksTaskFilters class="mb-6" />
 
     <div v-if="tasksStore.loading" class="flex justify-center py-12">
-      <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
     </div>
 
     <UAlert
       v-else-if="tasksStore.error"
       color="error"
-      icon="i-heroicons-exclamation-circle"
+      icon="i-lucide-circle-x"
       :title="tasksStore.error"
     />
 
     <UAlert
       v-else-if="projectsStore.items.length === 0"
       color="warning"
-      icon="i-heroicons-exclamation-triangle"
+      icon="i-lucide-triangle-alert"
       title="Aucun projet disponible"
       description="Créez d'abord un projet avant d'ajouter des tâches."
     >
@@ -132,19 +132,19 @@ onMounted(async () => {
       </template>
     </UAlert>
 
-    <EmptyState
+    <UiEmptyState
       v-else-if="tasksStore.sortedByDueDate.length === 0"
       :title="tasksStore.items.length === 0 ? 'Aucune tâche' : 'Aucun résultat'"
-      :description="tasksStore.items.length === 0 
+      :description="tasksStore.items.length === 0
         ? 'Créez votre première tâche pour commencer.'
         : 'Aucune tâche ne correspond à vos filtres.'"
       :action-label="tasksStore.items.length === 0 ? 'Créer une tâche' : undefined"
-      icon="i-heroicons-clipboard-document-list"
+      icon="i-lucide-clipboard-list"
       @action="openCreateModal"
     />
 
     <div v-else class="grid gap-4">
-      <TaskCard
+      <TasksTaskCard
         v-for="task in tasksStore.sortedByDueDate"
         :key="task.id"
         :task="task"
@@ -155,33 +155,27 @@ onMounted(async () => {
     </div>
 
     <!-- Modal de création -->
-    <UModal v-model="isCreateModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Nouvelle tâche</h2>
-        </template>
-        <TaskForm
+    <UModal v-model:open="isCreateModalOpen" title="Nouvelle tâche">
+      <template #body>
+        <TasksTaskForm
           submit-label="Créer"
           @submit="handleCreate"
           @cancel="closeCreateModal"
         />
-      </UCard>
+      </template>
     </UModal>
 
     <!-- Modal d'édition -->
-    <UModal v-model="isEditModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">Modifier la tâche</h2>
-        </template>
-        <TaskForm
+    <UModal v-model:open="isEditModalOpen" title="Modifier la tâche">
+      <template #body>
+        <TasksTaskForm
           v-if="selectedTask"
           :initial-data="selectedTask"
           submit-label="Enregistrer"
           @submit="handleUpdate"
           @cancel="closeEditModal"
         />
-      </UCard>
+      </template>
     </UModal>
   </div>
 </template>
