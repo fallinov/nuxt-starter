@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  submit: [data: { label: string; dueDate: string; priority: Priority; projectId: string }]
+  submit: [data: { label: string; description?: string; dueDate: string; priority: Priority; projectId: string }]
   cancel: []
 }>()
 
@@ -37,6 +37,7 @@ const formatDateForInput = (dateString?: string): string => {
 
 const state = reactive({
   label: props.initialData?.label || '',
+  description: props.initialData?.description || '',
   dueDate: formatDateForInput(props.initialData?.dueDate),
   priority: props.initialData?.priority || 'medium',
   projectId: props.initialData?.projectId || ''
@@ -44,6 +45,7 @@ const state = reactive({
 
 const schema = z.object({
   label: z.string().min(1, 'Le libellé est requis').max(200),
+  description: z.string().max(1000).optional(),
   dueDate: z.string().min(1, 'La date est requise'),
   priority: z.enum(['low', 'medium', 'high']),
   projectId: z.string().min(1, 'Le projet est requis')
@@ -55,6 +57,7 @@ const onSubmit = (event: FormSubmitEvent<Schema>) => {
   const dueDateISO = new Date(event.data.dueDate).toISOString()
   emit('submit', {
     ...event.data,
+    description: event.data.description?.trim() || undefined,
     dueDate: dueDateISO
   })
 }
@@ -89,6 +92,17 @@ onMounted(() => {
         v-model="state.label"
         placeholder="Décrivez la tâche..."
         autofocus
+      />
+    </UFormField>
+
+    <UFormField
+      label="Description"
+      name="description"
+    >
+      <UTextarea
+        v-model="state.description"
+        placeholder="Ajouter des détails (optionnel)..."
+        :rows="3"
       />
     </UFormField>
 

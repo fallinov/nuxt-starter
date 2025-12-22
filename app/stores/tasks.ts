@@ -42,7 +42,9 @@ export const useTasksStore = defineStore('tasks', {
         }
         if (state.filters.search) {
           const searchLower = state.filters.search.toLowerCase()
-          if (!task.label.toLowerCase().includes(searchLower)) {
+          const labelMatch = task.label.toLowerCase().includes(searchLower)
+          const descMatch = task.description?.toLowerCase().includes(searchLower) || false
+          if (!labelMatch && !descMatch) {
             return false
           }
         }
