@@ -24,14 +24,18 @@ const swipeOffset = ref(0)
 const swipeThreshold = 80
 
 const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0].clientX
-  touchCurrentX.value = e.touches[0].clientX
+  const touch = e.touches[0]
+  if (!touch) return
+  touchStartX.value = touch.clientX
+  touchCurrentX.value = touch.clientX
   isSwiping.value = true
 }
 
 const handleTouchMove = (e: TouchEvent) => {
   if (!isSwiping.value) return
-  touchCurrentX.value = e.touches[0].clientX
+  const touch = e.touches[0]
+  if (!touch) return
+  touchCurrentX.value = touch.clientX
   const diff = touchStartX.value - touchCurrentX.value
 
   // Only allow left swipe (positive diff), limit to max offset
