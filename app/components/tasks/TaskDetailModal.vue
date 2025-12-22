@@ -79,8 +79,10 @@ const initCreateMode = () => {
   tomorrow.setDate(tomorrow.getDate() + 1)
   createState.dueDate = tomorrow.toISOString().split('T')[0] as string
 
-  // Set default project
-  createState.projectId = props.defaultProjectId || (projectsStore.items[0]?.id || '')
+  // Set default project: use prop, then store default, then first project
+  createState.projectId = props.defaultProjectId
+    || projectsStore.defaultProjectId
+    || (projectsStore.items[0]?.id || '')
 
   nextTick(() => {
     createLabelInput.value?.focus()

@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const ProjectSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1, 'Le nom est requis').max(100, 'Le nom ne peut pas dépasser 100 caractères'),
+  isDefault: z.boolean().optional(),
   createdAt: z.string().datetime()
 })
 

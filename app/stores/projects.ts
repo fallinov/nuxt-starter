@@ -25,9 +25,15 @@ export const useProjectsStore = defineStore('projects', {
       return state.items.find(p => p.id === id)
     },
     sortedByDate: (state): Project[] => {
-      return [...state.items].sort((a, b) => 
+      return [...state.items].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
+    },
+    defaultProject: (state): Project | undefined => {
+      return state.items.find(p => p.isDefault)
+    },
+    defaultProjectId: (state): string | undefined => {
+      return state.items.find(p => p.isDefault)?.id
     }
   },
 
@@ -81,6 +87,20 @@ export const useProjectsStore = defineStore('projects', {
     async setAll(projects: Project[]): Promise<void> {
       await storage.setAll(projects)
       this.items = projects
+    },
+
+    async setAsDefault(id: string): Promise<void> {
+      // Remove default from current default project
+      const currentDefault = this.items.find(p => p.isDefault)
+      if (currentDefault && currentDefault.id !== id) {
+        await this.update(currentDefault.id, { isDefault: false })
+      }
+      // Set new project as default
+      await this.update(id, { isDefault: true })
+    },
+
+    async removeDefault(id: string): Promise<void> {
+      await this.update(id, { isDefault: false })
     }
   }
 })

@@ -74,6 +74,21 @@ const handleDelete = async (project: Project) => {
   }
 }
 
+const handleSetDefault = async (project: Project) => {
+  try {
+    if (project.isDefault) {
+      await projectsStore.removeDefault(project.id)
+      toast.add({ title: 'Projet par défaut retiré', description: `"${project.name}" n'est plus le projet par défaut.`, color: 'success' })
+    } else {
+      await projectsStore.setAsDefault(project.id)
+      toast.add({ title: 'Projet par défaut défini', description: `"${project.name}" est maintenant le projet par défaut.`, color: 'success' })
+    }
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier le projet par défaut.', color: 'error' })
+    console.error(e)
+  }
+}
+
 onMounted(async () => {
   await Promise.all([
     projectsStore.fetchAll(),
@@ -121,6 +136,7 @@ onMounted(async () => {
         :task-count="tasksStore.taskCountByProject(project.id)"
         @edit="openEditModal"
         @delete="handleDelete"
+        @set-default="handleSetDefault"
       />
     </div>
 
