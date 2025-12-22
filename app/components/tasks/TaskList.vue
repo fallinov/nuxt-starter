@@ -11,6 +11,10 @@ const isModalOpen = ref(false)
 const modalMode = ref<'view' | 'create'>('view')
 const selectedTask = ref<Task | null>(null)
 
+// Date sheet state for swipe reschedule
+const isDateSheetOpen = ref(false)
+const taskToReschedule = ref<Task | null>(null)
+
 const getProjectName = (projectId: string): string => {
   const project = projectsStore.getById(projectId)
   return project?.name || 'Projet inconnu'
@@ -75,6 +79,27 @@ const handleDelete = async (task: Task) => {
       console.error(e)
     }
   }
+}
+
+const handleReschedule = (task: Task) => {
+  taskToReschedule.value = task
+  isDateSheetOpen.value = true
+}
+
+const handleDateSelect = async (newDate: string) => {
+  if (!taskToReschedule.value) return
+
+  try {
+    // Convert date string to ISO datetime
+    const dueDate = newDate ? new Date(newDate).toISOString() : new Date().toISOString()
+    await tasksStore.update(taskToReschedule.value.id, { dueDate })
+    toast.add({ title: 'Date modifiée', color: 'success' })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la date.', color: 'error' })
+    console.error(e)
+  }
+
+  taskToReschedule.value = null
 }
 
 const handleComplete = async (task: Task) => {
@@ -180,6 +205,7 @@ onMounted(async () => {
             @click="openDetailModal"
             @complete="handleComplete"
             @delete="handleDelete"
+            @reschedule="handleReschedule"
           />
         </template>
 
@@ -213,6 +239,13 @@ onMounted(async () => {
       @update="handleUpdate"
       @delete="handleDelete"
       @complete="handleComplete"
+    />
+
+    <!-- Date sheet for swipe reschedule -->
+    <TasksTaskDateSheet
+      v-model:open="isDateSheetOpen"
+      :current-date="taskToReschedule?.dueDate || ''"
+      @select="handleDateSelect"
     />
   </div>
 </template>
