@@ -78,11 +78,19 @@ const handleDelete = async (task: Task) => {
 }
 
 const handleComplete = async (task: Task) => {
-  // Save task data for potential undo
-  const taskBackup = { ...task }
+  // If task is already completed, uncomplete it
+  if (task.completedAt) {
+    try {
+      await tasksStore.uncomplete(task.id)
+    } catch (e) {
+      toast.add({ title: 'Erreur', description: 'Impossible de réactiver la tâche.', color: 'error' })
+      console.error(e)
+    }
+    return
+  }
 
   try {
-    await tasksStore.remove(task.id)
+    await tasksStore.complete(task.id)
     closeModal()
 
     // Show toast with undo action
@@ -97,15 +105,7 @@ const handleComplete = async (task: Task) => {
         variant: 'outline' as const,
         onClick: async () => {
           try {
-            // Restore the task
-            await tasksStore.create({
-              label: taskBackup.label,
-              description: taskBackup.description,
-              priority: taskBackup.priority,
-              projectId: taskBackup.projectId,
-              dueDate: taskBackup.dueDate
-            })
-            toast.add({ title: 'Tâche restaurée', color: 'success' })
+            await tasksStore.uncomplete(task.id)
           } catch (e) {
             toast.add({ title: 'Erreur', description: 'Impossible de restaurer la tâche.', color: 'error' })
             console.error(e)

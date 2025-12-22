@@ -52,10 +52,23 @@ export const useTasksStore = defineStore('tasks', {
       })
     },
 
+    pendingTasks(): Task[] {
+      return this.filteredTasks.filter(task => !task.completedAt)
+    },
+
+    completedTasks(): Task[] {
+      return this.filteredTasks.filter(task => !!task.completedAt)
+    },
+
     sortedByDueDate(): Task[] {
-      return [...this.filteredTasks].sort((a, b) => 
+      // Pending tasks sorted by due date, then completed tasks sorted by completion date
+      const pending = [...this.pendingTasks].sort((a, b) =>
         new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
       )
+      const completed = [...this.completedTasks].sort((a, b) =>
+        new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime()
+      )
+      return [...pending, ...completed]
     },
 
     getById: (state) => (id: string): Task | undefined => {
@@ -103,6 +116,25 @@ export const useTasksStore = defineStore('tasks', {
     async remove(id: string): Promise<void> {
       await storage.delete(id)
       this.items = this.items.filter(t => t.id !== id)
+    },
+
+    async complete(id: string): Promise<Task> {
+      const completedAt = new Date().toISOString()
+      const updated = await storage.update(id, { completedAt })
+      const index = this.items.findIndex(t => t.id === id)
+      if (index !== -1) {
+        this.items[index] = updated
+      }
+      return updated
+    },
+
+    async uncomplete(id: string): Promise<Task> {
+      const updated = await storage.update(id, { completedAt: null })
+      const index = this.items.findIndex(t => t.id === id)
+      if (index !== -1) {
+        this.items[index] = updated
+      }
+      return updated
     },
 
     async removeByProjectId(projectId: string): Promise<void> {

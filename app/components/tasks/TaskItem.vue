@@ -40,7 +40,10 @@ const formattedDueDate = computed(() => {
   })
 })
 
+const isCompleted = computed(() => !!props.task.completedAt)
+
 const isOverdue = computed(() => {
+  if (isCompleted.value) return false
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const taskDate = new Date(props.task.dueDate)
@@ -60,20 +63,29 @@ const priorityColor = computed(() => {
   >
     <!-- Checkbox - larger touch target -->
     <button
-      class="flex-shrink-0 size-6 rounded-full border-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 mt-0.5"
-      :class="{
-        'border-red-400 hover:border-red-500': priorityColor === 'error',
-        'border-amber-400 hover:border-amber-500': priorityColor === 'warning',
-        'border-gray-300 dark:border-gray-600 hover:border-gray-400': priorityColor === 'neutral'
-      }"
+      class="flex-shrink-0 size-6 rounded-full border-2 transition-colors mt-0.5 flex items-center justify-center"
+      :class="isCompleted
+        ? 'border-gray-300 dark:border-gray-600 bg-gray-300 dark:bg-gray-600'
+        : {
+            'border-red-400 hover:border-red-500 hover:bg-gray-100 dark:hover:bg-gray-700': priorityColor === 'error',
+            'border-amber-400 hover:border-amber-500 hover:bg-gray-100 dark:hover:bg-gray-700': priorityColor === 'warning',
+            'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700': priorityColor === 'neutral'
+          }"
       @click.stop="emit('complete', task)"
-      aria-label="Marquer comme terminée"
-    />
+      :aria-label="isCompleted ? 'Réactiver la tâche' : 'Marquer comme terminée'"
+    >
+      <UIcon v-if="isCompleted" name="i-lucide-check" class="size-4 text-white" />
+    </button>
 
     <!-- Content -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
-        <span class="text-base text-gray-900 dark:text-gray-100 leading-snug">
+        <span
+          class="text-base leading-snug"
+          :class="isCompleted
+            ? 'text-gray-400 dark:text-gray-500 line-through'
+            : 'text-gray-900 dark:text-gray-100'"
+        >
           {{ task.label }}
         </span>
       </div>
@@ -82,7 +94,9 @@ const priorityColor = computed(() => {
       <div class="flex items-center gap-3 mt-1.5">
         <span
           class="flex items-center gap-1 text-sm"
-          :class="isOverdue ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'"
+          :class="isCompleted
+            ? 'text-gray-400 dark:text-gray-500'
+            : isOverdue ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'"
         >
           <UIcon name="i-lucide-calendar" class="size-4" />
           {{ formattedDueDate }}
@@ -90,7 +104,8 @@ const priorityColor = computed(() => {
 
         <span
           v-if="projectName"
-          class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
+          class="flex items-center gap-1 text-sm"
+          :class="isCompleted ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'"
         >
           <UIcon name="i-lucide-hash" class="size-4" />
           {{ projectName }}

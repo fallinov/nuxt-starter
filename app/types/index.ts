@@ -14,6 +14,7 @@ export const TaskSchema = z.object({
   dueDate: z.string().datetime(),
   priority: z.enum(['low', 'medium', 'high']),
   projectId: z.string().uuid(),
+  completedAt: z.string().datetime().nullable().optional(),
   createdAt: z.string().datetime()
 })
 
