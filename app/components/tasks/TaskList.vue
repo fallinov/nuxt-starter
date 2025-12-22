@@ -78,22 +78,44 @@ const handleDelete = async (task: Task) => {
 }
 
 const handleComplete = async (task: Task) => {
-  const confirmed = await confirm({
-    title: 'Terminer la tâche',
-    message: `Marquer "${task.label}" comme terminée ? La tâche sera supprimée.`,
-    confirmLabel: 'Terminer',
-    confirmColor: 'primary'
-  })
+  // Save task data for potential undo
+  const taskBackup = { ...task }
 
-  if (confirmed) {
-    try {
-      await tasksStore.remove(task.id)
-      closeModal()
-      toast.add({ title: 'Tâche terminée', description: 'Bravo ! La tâche a été complétée.', color: 'success' })
-    } catch (e) {
-      toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
-      console.error(e)
-    }
+  try {
+    await tasksStore.remove(task.id)
+    closeModal()
+
+    // Show toast with undo action
+    toast.add({
+      title: 'Tâche terminée',
+      icon: 'i-lucide-check-circle',
+      color: 'success',
+      duration: 5000,
+      actions: [{
+        label: 'Annuler',
+        color: 'neutral' as const,
+        variant: 'outline' as const,
+        onClick: async () => {
+          try {
+            // Restore the task
+            await tasksStore.create({
+              label: taskBackup.label,
+              description: taskBackup.description,
+              priority: taskBackup.priority,
+              projectId: taskBackup.projectId,
+              dueDate: taskBackup.dueDate
+            })
+            toast.add({ title: 'Tâche restaurée', color: 'success' })
+          } catch (e) {
+            toast.add({ title: 'Erreur', description: 'Impossible de restaurer la tâche.', color: 'error' })
+            console.error(e)
+          }
+        }
+      }]
+    })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
+    console.error(e)
   }
 }
 
