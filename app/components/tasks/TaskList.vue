@@ -7,7 +7,8 @@ const { confirm } = useConfirm()
 const toast = useToast()
 const route = useRoute()
 
-const isDetailModalOpen = ref(false)
+const isModalOpen = ref(false)
+const modalMode = ref<'view' | 'create'>('view')
 const selectedTask = ref<Task | null>(null)
 
 const getProjectName = (projectId: string): string => {
@@ -15,14 +16,21 @@ const getProjectName = (projectId: string): string => {
   return project?.name || 'Projet inconnu'
 }
 
-const openDetailModal = (task: Task) => {
-  selectedTask.value = task
-  isDetailModalOpen.value = true
+const openCreateModal = () => {
+  selectedTask.value = null
+  modalMode.value = 'create'
+  isModalOpen.value = true
 }
 
-const closeDetailModal = () => {
+const openDetailModal = (task: Task) => {
+  selectedTask.value = task
+  modalMode.value = 'view'
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
   selectedTask.value = null
-  isDetailModalOpen.value = false
+  isModalOpen.value = false
 }
 
 const handleCreate = async (data: CreateTask) => {
@@ -60,7 +68,7 @@ const handleDelete = async (task: Task) => {
   if (confirmed) {
     try {
       await tasksStore.remove(task.id)
-      closeDetailModal()
+      closeModal()
       toast.add({ title: 'Tâche supprimée', description: 'La tâche a été supprimée.', color: 'success' })
     } catch (e) {
       toast.add({ title: 'Erreur', description: 'Impossible de supprimer la tâche.', color: 'error' })
@@ -80,7 +88,7 @@ const handleComplete = async (task: Task) => {
   if (confirmed) {
     try {
       await tasksStore.remove(task.id)
-      closeDetailModal()
+      closeModal()
       toast.add({ title: 'Tâche terminée', description: 'Bravo ! La tâche a été complétée.', color: 'success' })
     } catch (e) {
       toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
@@ -104,7 +112,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="relative min-h-[calc(100vh-200px)]">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Tâches</h1>
     </div>
@@ -140,7 +148,7 @@ onMounted(async () => {
 
     <template v-else>
       <!-- Task list -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden mb-6">
+      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
         <template v-if="tasksStore.sortedByDueDate.length > 0">
           <TasksTaskItem
             v-for="task in tasksStore.sortedByDueDate"
@@ -157,24 +165,29 @@ onMounted(async () => {
           v-else
           :title="tasksStore.items.length === 0 ? 'Aucune tâche' : 'Aucun résultat'"
           :description="tasksStore.items.length === 0
-            ? 'Ajoutez votre première tâche ci-dessous.'
+            ? 'Cliquez sur + pour ajouter votre première tâche.'
             : 'Aucune tâche ne correspond à vos filtres.'"
           icon="i-lucide-clipboard-list"
           class="py-12"
         />
       </div>
 
-      <!-- Quick add form -->
-      <TasksTaskQuickAdd
-        @submit="handleCreate"
-      />
+      <!-- Floating Action Button -->
+      <button
+        class="fixed bottom-6 right-6 size-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
+        aria-label="Ajouter une tâche"
+        @click="openCreateModal"
+      >
+        <UIcon name="i-lucide-plus" class="size-7" />
+      </button>
     </template>
 
-    <!-- Detail modal -->
+    <!-- Unified Modal for Create/View/Edit -->
     <TasksTaskDetailModal
-      v-model:open="isDetailModalOpen"
+      v-model:open="isModalOpen"
       :task="selectedTask"
-      :project-name="selectedTask ? getProjectName(selectedTask.projectId) : undefined"
+      :mode="modalMode"
+      @create="handleCreate"
       @update="handleUpdate"
       @delete="handleDelete"
       @complete="handleComplete"
