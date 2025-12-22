@@ -113,11 +113,11 @@ onMounted(async () => {
 
 <template>
   <div class="relative min-h-[calc(100vh-200px)]">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Tâches</h1>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">Tâches</h1>
     </div>
 
-    <TasksTaskFilters class="mb-6" />
+    <TasksTaskFilters class="mb-4 sm:mb-6" />
 
     <div v-if="tasksStore.loading" class="flex justify-center py-12">
       <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
@@ -148,7 +148,7 @@ onMounted(async () => {
 
     <template v-else>
       <!-- Task list -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
         <template v-if="tasksStore.sortedByDueDate.length > 0">
           <TasksTaskItem
             v-for="task in tasksStore.sortedByDueDate"

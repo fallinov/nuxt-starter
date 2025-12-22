@@ -46,7 +46,7 @@ const navigation = [
     </UHeader>
 
     <UMain>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
         <NuxtPage />
       </div>
     </UMain>

@@ -55,12 +55,12 @@ const priorityColor = computed(() => {
 
 <template>
   <div
-    class="group flex items-center gap-3 py-3 px-2 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+    class="group flex items-start gap-3 py-4 px-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors active:bg-gray-100 dark:active:bg-gray-700"
     @click="emit('click', task)"
   >
-    <!-- Checkbox -->
+    <!-- Checkbox - larger touch target -->
     <button
-      class="flex-shrink-0 size-5 rounded-full border-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+      class="flex-shrink-0 size-6 rounded-full border-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 mt-0.5"
       :class="{
         'border-red-400 hover:border-red-500': priorityColor === 'error',
         'border-amber-400 hover:border-amber-500': priorityColor === 'warning',
@@ -73,33 +73,33 @@ const priorityColor = computed(() => {
     <!-- Content -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-gray-900 dark:text-gray-100 truncate">
+        <span class="text-base text-gray-900 dark:text-gray-100 leading-snug">
           {{ task.label }}
         </span>
       </div>
 
       <!-- Meta info -->
-      <div class="flex items-center gap-3 mt-1">
+      <div class="flex items-center gap-3 mt-1.5">
         <span
-          class="flex items-center gap-1 text-xs"
+          class="flex items-center gap-1 text-sm"
           :class="isOverdue ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'"
         >
-          <UIcon name="i-lucide-calendar" class="size-3" />
+          <UIcon name="i-lucide-calendar" class="size-4" />
           {{ formattedDueDate }}
         </span>
 
         <span
           v-if="projectName"
-          class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
+          class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
         >
-          <UIcon name="i-lucide-hash" class="size-3" />
+          <UIcon name="i-lucide-hash" class="size-4" />
           {{ projectName }}
         </span>
       </div>
     </div>
 
-    <!-- Actions (visible on hover) -->
-    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+    <!-- Actions (visible on hover/touch) -->
+    <div class="flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
       <UDropdownMenu
         :items="[
           [{
@@ -115,7 +115,7 @@ const priorityColor = computed(() => {
           color="neutral"
           variant="ghost"
           icon="i-lucide-ellipsis"
-          size="xs"
+          size="sm"
           aria-label="Plus d'actions"
           @click.stop
         />
