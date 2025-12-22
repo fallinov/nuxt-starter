@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Task, Priority, UpdateTask, CreateTask } from '~/types'
-import { PRIORITY_LABELS, PRIORITY_COLORS } from '~/types'
+import { PRIORITY_COLORS } from '~/types'
 
 interface Props {
   task?: Task | null
@@ -45,19 +45,6 @@ const descriptionInput = ref<HTMLTextAreaElement>()
 
 const isCreateMode = computed(() => props.mode === 'create')
 
-const priorityOptions = [
-  { label: 'Basse', value: 'low' as Priority, color: PRIORITY_COLORS.low },
-  { label: 'Moyenne', value: 'medium' as Priority, color: PRIORITY_COLORS.medium },
-  { label: 'Haute', value: 'high' as Priority, color: PRIORITY_COLORS.high }
-]
-
-const projectOptions = computed(() => {
-  return projectsStore.items.map(p => ({
-    label: p.name,
-    value: p.id
-  }))
-})
-
 const formattedCreatedAt = computed(() => {
   if (!props.task) return ''
   const date = new Date(props.task.createdAt)
@@ -66,27 +53,6 @@ const formattedCreatedAt = computed(() => {
     month: 'short',
     year: 'numeric'
   })
-})
-
-const isOverdue = computed(() => {
-  if (isCreateMode.value) return false
-  if (!props.task) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const taskDate = new Date(props.task.dueDate)
-  taskDate.setHours(0, 0, 0, 0)
-  return taskDate < today
-})
-
-const dueDateForInput = computed(() => {
-  if (isCreateMode.value) return createState.dueDate
-  if (!props.task) return ''
-  return props.task.dueDate.split('T')[0]
-})
-
-const currentPriority = computed(() => {
-  if (isCreateMode.value) return createState.priority
-  return props.task?.priority || 'medium'
 })
 
 const canCreate = computed(() => {
@@ -185,8 +151,10 @@ const updateDueDate = (dateString: string) => {
     return
   }
   if (!props.task) return
-  const dueDateISO = new Date(dateString).toISOString()
-  emit('update', props.task.id, { dueDate: dueDateISO })
+  if (dateString) {
+    const dueDateISO = new Date(dateString).toISOString()
+    emit('update', props.task.id, { dueDate: dueDateISO })
+  }
 }
 
 const updatePriority = (priority: Priority) => {
@@ -317,50 +285,22 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Task details -->
-        <div class="space-y-4">
-          <!-- Project -->
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-hash" class="size-5 text-gray-400 flex-shrink-0" />
-            <USelectMenu
-              v-model="createState.projectId"
-              :options="projectOptions"
-              value-attribute="value"
-              option-attribute="label"
-              placeholder="Sélectionner un projet"
-              class="flex-1"
-            />
-          </div>
+        <!-- Task details with improved pickers -->
+        <div class="space-y-2">
+          <!-- Project picker -->
+          <TasksTaskProjectPicker
+            v-model="createState.projectId"
+          />
 
-          <!-- Due date -->
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-calendar" class="size-5 text-gray-400 flex-shrink-0" />
-            <UInput
-              v-model="createState.dueDate"
-              type="date"
-              class="flex-1"
-            />
-          </div>
+          <!-- Date picker -->
+          <TasksTaskDatePicker
+            v-model="createState.dueDate"
+          />
 
-          <!-- Priority -->
-          <div class="flex items-center gap-3">
-            <UIcon
-              name="i-lucide-flag"
-              class="size-5 flex-shrink-0"
-              :class="{
-                'text-red-500': PRIORITY_COLORS[createState.priority] === 'error',
-                'text-amber-500': PRIORITY_COLORS[createState.priority] === 'warning',
-                'text-gray-400': PRIORITY_COLORS[createState.priority] === 'neutral'
-              }"
-            />
-            <USelectMenu
-              v-model="createState.priority"
-              :options="priorityOptions"
-              value-attribute="value"
-              option-attribute="label"
-              class="flex-1"
-            />
-          </div>
+          <!-- Priority picker -->
+          <TasksTaskPriorityPicker
+            v-model="createState.priority"
+          />
         </div>
 
         <!-- Description section -->
@@ -434,56 +374,25 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Task details -->
-        <div class="space-y-4">
-          <!-- Project -->
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-hash" class="size-5 text-gray-400 flex-shrink-0" />
-            <USelectMenu
-              :model-value="task.projectId"
-              :options="projectOptions"
-              value-attribute="value"
-              option-attribute="label"
-              class="flex-1"
-              @update:model-value="updateProject"
-            />
-          </div>
+        <!-- Task details with improved pickers -->
+        <div class="space-y-2">
+          <!-- Project picker -->
+          <TasksTaskProjectPicker
+            :model-value="task.projectId"
+            @update:model-value="updateProject"
+          />
 
-          <!-- Due date -->
-          <div class="flex items-center gap-3">
-            <UIcon
-              name="i-lucide-calendar"
-              class="size-5 flex-shrink-0"
-              :class="isOverdue ? 'text-red-500' : 'text-gray-400'"
-            />
-            <UInput
-              type="date"
-              :model-value="dueDateForInput"
-              class="flex-1"
-              @update:model-value="updateDueDate"
-            />
-          </div>
+          <!-- Date picker -->
+          <TasksTaskDatePicker
+            :model-value="task.dueDate"
+            @update:model-value="updateDueDate"
+          />
 
-          <!-- Priority -->
-          <div class="flex items-center gap-3">
-            <UIcon
-              name="i-lucide-flag"
-              class="size-5 flex-shrink-0"
-              :class="{
-                'text-red-500': PRIORITY_COLORS[task.priority] === 'error',
-                'text-amber-500': PRIORITY_COLORS[task.priority] === 'warning',
-                'text-gray-400': PRIORITY_COLORS[task.priority] === 'neutral'
-              }"
-            />
-            <USelectMenu
-              :model-value="task.priority"
-              :options="priorityOptions"
-              value-attribute="value"
-              option-attribute="label"
-              class="flex-1"
-              @update:model-value="updatePriority"
-            />
-          </div>
+          <!-- Priority picker -->
+          <TasksTaskPriorityPicker
+            :model-value="task.priority"
+            @update:model-value="updatePriority"
+          />
         </div>
 
         <!-- Description section -->
