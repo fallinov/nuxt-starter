@@ -153,10 +153,9 @@ const updateDueDate = (dateString: string) => {
     return
   }
   if (!props.task) return
-  if (dateString) {
-    const dueDateISO = new Date(dateString).toISOString()
-    emit('update', props.task.id, { dueDate: dueDateISO })
-  }
+  // Set to ISO datetime if date provided, or null if cleared
+  const dueDate = dateString ? new Date(dateString).toISOString() : null
+  emit('update', props.task.id, { dueDate })
 }
 
 const updatePriority = (priority: Priority) => {
