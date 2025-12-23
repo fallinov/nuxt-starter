@@ -150,10 +150,15 @@ onMounted(async () => {
     projectsStore.fetchAll()
   ])
 
-  // Appliquer le filtre de projet depuis l'URL si présent
+  // Appliquer les filtres depuis l'URL si présents
   const projectId = route.query.projectId as string | undefined
-  if (projectId) {
-    tasksStore.setFilters({ projectId })
+  const priority = route.query.priority as 'high' | 'medium' | 'low' | undefined
+
+  if (projectId || priority) {
+    tasksStore.setFilters({
+      ...(projectId && { projectId }),
+      ...(priority && { priority })
+    })
   }
 })
 </script>

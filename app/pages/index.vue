@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Task } from '~/types'
+
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
 const toast = useToast()
@@ -6,18 +8,53 @@ const toast = useToast()
 const isLoading = ref(true)
 const isDemoLoading = ref(false)
 
+// Helper to check if date is today
+const isToday = (date: Date): boolean => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const compareDate = new Date(date)
+  compareDate.setHours(0, 0, 0, 0)
+  return compareDate.getTime() === today.getTime()
+}
+
+// Helper to check if date is overdue (before today)
+const isOverdue = (date: Date): boolean => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const compareDate = new Date(date)
+  compareDate.setHours(0, 0, 0, 0)
+  return compareDate < today
+}
+
+// Filter only pending tasks (not completed)
+const pendingTasks = computed(() => {
+  return tasksStore.items.filter(t => !t.completedAt)
+})
+
 const stats = computed(() => ({
   projects: projectsStore.items.length,
-  tasks: tasksStore.items.length,
-  highPriority: tasksStore.items.filter(t => t.priority === 'high').length,
-  overdue: tasksStore.items.filter(t => new Date(t.dueDate) < new Date()).length
+  tasks: pendingTasks.value.length,
+  highPriority: pendingTasks.value.filter(t => t.priority === 'high').length,
+  overdue: pendingTasks.value.filter(t => isOverdue(new Date(t.dueDate))).length
 }))
 
-const recentTasks = computed(() => {
-  return [...tasksStore.items]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5)
+// Tasks grouped by status
+const overdueTasks = computed(() => {
+  return pendingTasks.value
+    .filter(t => isOverdue(new Date(t.dueDate)))
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 })
+
+const todayTasks = computed(() => {
+  return pendingTasks.value
+    .filter(t => isToday(new Date(t.dueDate)))
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+})
+
+const getProjectName = (projectId: string): string => {
+  const project = projectsStore.getById(projectId)
+  return project?.name || ''
+}
 
 const loadDemoData = async () => {
   isDemoLoading.value = true
@@ -89,120 +126,177 @@ onMounted(async () => {
       <template v-else>
       <!-- Stats cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <UCard>
-          <div class="flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/30">
-              <UIcon name="i-lucide-folder" class="size-6 text-primary-600 dark:text-primary-400" />
+        <NuxtLink to="/projects">
+          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/30">
+                <UIcon name="i-lucide-folder" class="size-6 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <p class="text-2xl font-bold">{{ stats.projects }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Projets</p>
+              </div>
             </div>
-            <div>
-              <p class="text-2xl font-bold">{{ stats.projects }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Projets</p>
-            </div>
-          </div>
-        </UCard>
+          </UCard>
+        </NuxtLink>
 
-        <UCard>
-          <div class="flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <UIcon name="i-lucide-clipboard-list" class="size-6 text-blue-600 dark:text-blue-400" />
+        <NuxtLink to="/tasks">
+          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                <UIcon name="i-lucide-clipboard-list" class="size-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p class="text-2xl font-bold">{{ stats.tasks }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Tâches</p>
+              </div>
             </div>
-            <div>
-              <p class="text-2xl font-bold">{{ stats.tasks }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Tâches</p>
-            </div>
-          </div>
-        </UCard>
+          </UCard>
+        </NuxtLink>
 
-        <UCard>
-          <div class="flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
-              <UIcon name="i-lucide-triangle-alert" class="size-6 text-red-600 dark:text-red-400" />
+        <NuxtLink to="/tasks?priority=high">
+          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
+                <UIcon name="i-lucide-triangle-alert" class="size-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <p class="text-2xl font-bold">{{ stats.highPriority }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Haute priorité</p>
+              </div>
             </div>
-            <div>
-              <p class="text-2xl font-bold">{{ stats.highPriority }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Haute priorité</p>
-            </div>
-          </div>
-        </UCard>
+          </UCard>
+        </NuxtLink>
 
-        <UCard>
-          <div class="flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-              <UIcon name="i-lucide-clock" class="size-6 text-yellow-600 dark:text-yellow-400" />
+        <a href="#overdue" class="scroll-smooth">
+          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+                <UIcon name="i-lucide-clock" class="size-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <p class="text-2xl font-bold">{{ stats.overdue }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">En retard</p>
+              </div>
             </div>
-            <div>
-              <p class="text-2xl font-bold">{{ stats.overdue }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">En retard</p>
-            </div>
-          </div>
-        </UCard>
+          </UCard>
+        </a>
       </div>
 
-      <!-- Quick actions -->
-      <div class="grid md:grid-cols-2 gap-6">
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Tâches récentes</h2>
-              <UButton
-                to="/tasks"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                trailing-icon="i-lucide-arrow-right"
-                label="Voir tout"
-              />
+      <!-- Overdue tasks section -->
+      <div v-if="overdueTasks.length > 0" id="overdue" class="mb-6">
+        <h2 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
+          <UIcon name="i-lucide-alert-circle" class="size-5" />
+          En retard
+        </h2>
+        <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+          <NuxtLink
+            v-for="task in overdueTasks"
+            :key="task.id"
+            :to="`/tasks`"
+            class="flex items-center gap-3 py-3 px-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+          >
+            <div class="size-5 rounded-full border-2 border-red-400 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-base text-gray-900 dark:text-gray-100 truncate">{{ task.label }}</p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="flex items-center gap-1 text-sm text-red-500">
+                  <UIcon name="i-lucide-calendar" class="size-4" />
+                  {{ new Date(task.dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) }}
+                </span>
+                <span v-if="getProjectName(task.projectId)" class="flex items-center gap-1 text-sm text-gray-500">
+                  <UIcon name="i-lucide-hash" class="size-4" />
+                  {{ getProjectName(task.projectId) }}
+                </span>
+              </div>
             </div>
-          </template>
+          </NuxtLink>
+        </div>
+      </div>
 
-          <div v-if="recentTasks.length === 0" class="text-center py-8 text-gray-500">
-            Aucune tâche
-          </div>
-          <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+      <!-- Today's tasks section -->
+      <div v-if="todayTasks.length > 0" class="mb-6">
+        <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <UIcon name="i-lucide-calendar" class="size-5 text-green-600" />
+          Aujourd'hui
+        </h2>
+        <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+          <NuxtLink
+            v-for="task in todayTasks"
+            :key="task.id"
+            :to="`/tasks`"
+            class="flex items-center gap-3 py-3 px-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+          >
             <div
-              v-for="task in recentTasks"
-              :key="task.id"
-              class="py-3 first:pt-0 last:pb-0"
-            >
-              <p class="font-medium truncate">{{ task.label }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ new Date(task.dueDate).toLocaleDateString('fr-FR') }}
-              </p>
+              class="size-5 rounded-full border-2 flex-shrink-0"
+              :class="{
+                'border-red-400': task.priority === 'high',
+                'border-amber-400': task.priority === 'medium',
+                'border-gray-300 dark:border-gray-600': task.priority === 'low'
+              }"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="text-base text-gray-900 dark:text-gray-100 truncate">{{ task.label }}</p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="flex items-center gap-1 text-sm text-green-600">
+                  <UIcon name="i-lucide-calendar" class="size-4" />
+                  Aujourd'hui
+                </span>
+                <span v-if="getProjectName(task.projectId)" class="flex items-center gap-1 text-sm text-gray-500">
+                  <UIcon name="i-lucide-hash" class="size-4" />
+                  {{ getProjectName(task.projectId) }}
+                </span>
+              </div>
             </div>
-          </div>
-        </UCard>
+          </NuxtLink>
+        </div>
+      </div>
 
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Projets</h2>
-              <UButton
-                to="/projects"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                trailing-icon="i-lucide-arrow-right"
-                label="Voir tout"
-              />
-            </div>
-          </template>
+      <!-- Empty state when no tasks -->
+      <div v-if="overdueTasks.length === 0 && todayTasks.length === 0 && pendingTasks.length === 0" class="text-center py-12">
+        <UIcon name="i-lucide-check-circle" class="size-12 text-green-500 mx-auto mb-4" />
+        <p class="text-lg font-medium text-gray-900 dark:text-gray-100">Tout est à jour !</p>
+        <p class="text-gray-500 mt-1">Aucune tâche en retard ou pour aujourd'hui.</p>
+        <UButton
+          to="/tasks"
+          class="mt-4"
+          variant="soft"
+          label="Voir toutes les tâches"
+        />
+      </div>
 
-          <div v-if="projectsStore.items.length === 0" class="text-center py-8 text-gray-500">
-            Aucun projet
-          </div>
-          <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div
-              v-for="project in projectsStore.sortedByDate.slice(0, 5)"
-              :key="project.id"
-              class="py-3 first:pt-0 last:pb-0 flex items-center justify-between"
-            >
-              <p class="font-medium truncate">{{ project.name }}</p>
-              <UBadge variant="subtle" size="xs">
-                {{ tasksStore.taskCountByProject(project.id) }} tâche(s)
-              </UBadge>
-            </div>
-          </div>
-        </UCard>
+      <!-- Projects section -->
+      <div v-if="projectsStore.items.length > 0" class="mt-8">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold">Projets</h2>
+          <UButton
+            to="/projects"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            trailing-icon="i-lucide-arrow-right"
+            label="Voir tout"
+          />
+        </div>
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <NuxtLink
+            v-for="project in projectsStore.sortedByDate.slice(0, 6)"
+            :key="project.id"
+            :to="`/tasks?projectId=${project.id}`"
+          >
+            <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-hash" class="size-4 text-primary" />
+                  <span class="font-medium truncate">{{ project.name }}</span>
+                </div>
+                <UBadge variant="subtle" size="xs">
+                  {{ tasksStore.taskCountByProject(project.id) }}
+                </UBadge>
+              </div>
+            </UCard>
+          </NuxtLink>
+        </div>
       </div>
     </template>
     </div>
