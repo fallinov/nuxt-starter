@@ -93,13 +93,13 @@ const handleDateSelect = async (newDate: string) => {
     // Convert date string to ISO datetime, or null if no date
     const dueDate = newDate ? new Date(newDate).toISOString() : null
     await tasksStore.update(taskToReschedule.value.id, { dueDate })
-    toast.add({ title: 'Date modifiée', color: 'success' })
+    toast.add({ title: dueDate ? 'Date modifiée' : 'Date supprimée', color: 'success' })
   } catch (e) {
     toast.add({ title: 'Erreur', description: 'Impossible de modifier la date.', color: 'error' })
     console.error(e)
+  } finally {
+    taskToReschedule.value = null
   }
-
-  taskToReschedule.value = null
 }
 
 const handleComplete = async (task: Task) => {
