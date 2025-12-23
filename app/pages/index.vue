@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import type { Task } from '~/types'
+import type { Task, CreateTask, UpdateTask } from '~/types'
 
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
 const toast = useToast()
 const { confirm } = useConfirm()
-const router = useRouter()
 
 const isLoading = ref(true)
 const isDemoLoading = ref(false)
+
+// Modal state
+const isModalOpen = ref(false)
+const modalMode = ref<'view' | 'create'>('view')
+const selectedTask = ref<Task | null>(null)
 
 // Date sheet state for swipe reschedule
 const isDateSheetOpen = ref(false)
@@ -70,9 +74,47 @@ const getProjectName = (projectId: string): string => {
   return project?.name || ''
 }
 
+// Modal handlers
+const openCreateModal = () => {
+  selectedTask.value = null
+  modalMode.value = 'create'
+  isModalOpen.value = true
+}
+
+const openDetailModal = (task: Task) => {
+  selectedTask.value = task
+  modalMode.value = 'view'
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  selectedTask.value = null
+  isModalOpen.value = false
+}
+
+const handleCreate = async (data: CreateTask) => {
+  try {
+    await tasksStore.create(data)
+    toast.add({ title: 'Tâche créée', color: 'success' })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de créer la tâche.', color: 'error' })
+  }
+}
+
+const handleUpdate = async (id: string, data: UpdateTask) => {
+  try {
+    await tasksStore.update(id, data)
+    if (selectedTask.value?.id === id) {
+      selectedTask.value = tasksStore.getById(id) || null
+    }
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la tâche.', color: 'error' })
+  }
+}
+
 // Task handlers
 const handleTaskClick = (task: Task) => {
-  router.push('/tasks')
+  openDetailModal(task)
 }
 
 const handleComplete = async (task: Task) => {
@@ -112,6 +154,7 @@ const handleDelete = async (task: Task) => {
   if (confirmed) {
     try {
       await tasksStore.remove(task.id)
+      closeModal()
       toast.add({ title: 'Tâche supprimée', color: 'success' })
     } catch (e) {
       toast.add({ title: 'Erreur', description: 'Impossible de supprimer la tâche.', color: 'error' })
@@ -277,6 +320,7 @@ onMounted(async () => {
             :key="task.id"
             :task="task"
             :project-name="getProjectName(task.projectId)"
+            hide-actions
             @click="handleTaskClick"
             @complete="handleComplete"
             @delete="handleDelete"
@@ -297,6 +341,7 @@ onMounted(async () => {
             :key="task.id"
             :task="task"
             :project-name="getProjectName(task.projectId)"
+            hide-actions
             @click="handleTaskClick"
             @complete="handleComplete"
             @delete="handleDelete"
@@ -317,6 +362,7 @@ onMounted(async () => {
             :key="task.id"
             :task="task"
             :project-name="getProjectName(task.projectId)"
+            hide-actions
             @click="handleTaskClick"
             @complete="handleComplete"
             @delete="handleDelete"
@@ -372,6 +418,27 @@ onMounted(async () => {
         </div>
       </div>
     </template>
+
+    <!-- Floating Action Button -->
+    <button
+      v-if="projectsStore.items.length > 0"
+      class="fixed bottom-6 right-6 size-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
+      aria-label="Ajouter une tâche"
+      @click="openCreateModal"
+    >
+      <UIcon name="i-lucide-plus" class="size-7" />
+    </button>
+
+    <!-- Task detail modal -->
+    <TasksTaskDetailModal
+      v-model:open="isModalOpen"
+      :task="selectedTask"
+      :mode="modalMode"
+      @create="handleCreate"
+      @update="handleUpdate"
+      @delete="handleDelete"
+      @complete="handleComplete"
+    />
 
     <!-- Date sheet for swipe reschedule -->
     <TasksTaskDateSheet

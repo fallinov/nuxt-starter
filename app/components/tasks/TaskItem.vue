@@ -5,9 +5,12 @@ import { PRIORITY_COLORS } from '~/types'
 interface Props {
   task: Task
   projectName?: string
+  hideActions?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  hideActions: false
+})
 
 const emit = defineEmits<{
   click: [task: Task]
@@ -175,7 +178,7 @@ const priorityColor = computed(() => {
       </div>
 
       <!-- Actions (visible on hover/touch) -->
-      <div class="flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+      <div v-if="!hideActions" class="flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <UDropdownMenu
           :items="[
             [{
