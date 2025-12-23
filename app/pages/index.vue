@@ -59,6 +59,12 @@ const todayTasks = computed(() => {
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 })
 
+const noDateTasks = computed(() => {
+  return pendingTasks.value
+    .filter(t => !t.dueDate)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+})
+
 const getProjectName = (projectId: string): string => {
   const project = projectsStore.getById(projectId)
   return project?.name || ''
@@ -288,6 +294,26 @@ onMounted(async () => {
         <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
           <TasksTaskItem
             v-for="task in todayTasks"
+            :key="task.id"
+            :task="task"
+            :project-name="getProjectName(task.projectId)"
+            @click="handleTaskClick"
+            @complete="handleComplete"
+            @delete="handleDelete"
+            @reschedule="handleReschedule"
+          />
+        </div>
+      </div>
+
+      <!-- No date tasks section -->
+      <div v-if="noDateTasks.length > 0" class="mb-6">
+        <h2 class="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <UIcon name="i-lucide-inbox" class="size-5" />
+          Pas de date
+        </h2>
+        <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+          <TasksTaskItem
+            v-for="task in noDateTasks"
             :key="task.id"
             :task="task"
             :project-name="getProjectName(task.projectId)"
