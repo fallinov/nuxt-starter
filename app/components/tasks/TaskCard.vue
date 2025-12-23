@@ -15,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const formattedDueDate = computed(() => {
+  if (!props.task.dueDate) return 'Pas de date'
   return new Date(props.task.dueDate).toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'short',
@@ -23,6 +24,7 @@ const formattedDueDate = computed(() => {
 })
 
 const isOverdue = computed(() => {
+  if (!props.task.dueDate) return false
   return new Date(props.task.dueDate) < new Date()
 })
 </script>

@@ -386,7 +386,7 @@ onMounted(() => {
 
           <!-- Date picker -->
           <TasksTaskDatePicker
-            :model-value="task.dueDate"
+            :model-value="task.dueDate || ''"
             @update:model-value="updateDueDate"
           />
 

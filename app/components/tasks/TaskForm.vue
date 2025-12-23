@@ -26,7 +26,7 @@ const priorityOptions = [
   { label: 'Haute', value: 'high' }
 ]
 
-const formatDateForInput = (dateString?: string): string => {
+const formatDateForInput = (dateString?: string | null): string => {
   if (!dateString) {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)

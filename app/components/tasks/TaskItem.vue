@@ -61,6 +61,8 @@ const handleTouchEnd = () => {
 }
 
 const formattedDueDate = computed(() => {
+  if (!props.task.dueDate) return 'Pas de date'
+
   const date = new Date(props.task.dueDate)
   const today = new Date()
   const tomorrow = new Date()
@@ -88,7 +90,7 @@ const formattedDueDate = computed(() => {
 const isCompleted = computed(() => !!props.task.completedAt)
 
 const isOverdue = computed(() => {
-  if (isCompleted.value) return false
+  if (isCompleted.value || !props.task.dueDate) return false
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const taskDate = new Date(props.task.dueDate)

@@ -15,19 +15,21 @@ const isDateSheetOpen = ref(false)
 const taskToReschedule = ref<Task | null>(null)
 
 // Helper to check if date is today
-const isToday = (date: Date): boolean => {
+const isToday = (dueDate: string | null): boolean => {
+  if (!dueDate) return false
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const compareDate = new Date(date)
+  const compareDate = new Date(dueDate)
   compareDate.setHours(0, 0, 0, 0)
   return compareDate.getTime() === today.getTime()
 }
 
 // Helper to check if date is overdue (before today)
-const isOverdue = (date: Date): boolean => {
+const isOverdue = (dueDate: string | null): boolean => {
+  if (!dueDate) return false
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const compareDate = new Date(date)
+  const compareDate = new Date(dueDate)
   compareDate.setHours(0, 0, 0, 0)
   return compareDate < today
 }
@@ -41,19 +43,19 @@ const stats = computed(() => ({
   projects: projectsStore.items.length,
   tasks: pendingTasks.value.length,
   highPriority: pendingTasks.value.filter(t => t.priority === 'high').length,
-  overdue: pendingTasks.value.filter(t => isOverdue(new Date(t.dueDate))).length
+  overdue: pendingTasks.value.filter(t => isOverdue(t.dueDate)).length
 }))
 
 // Tasks grouped by status
 const overdueTasks = computed(() => {
   return pendingTasks.value
-    .filter(t => isOverdue(new Date(t.dueDate)))
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+    .filter(t => isOverdue(t.dueDate))
+    .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
 })
 
 const todayTasks = computed(() => {
   return pendingTasks.value
-    .filter(t => isToday(new Date(t.dueDate)))
+    .filter(t => isToday(t.dueDate))
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 })
 

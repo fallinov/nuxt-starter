@@ -61,10 +61,13 @@ export const useTasksStore = defineStore('tasks', {
     },
 
     sortedByDueDate(): Task[] {
-      // Pending tasks sorted by due date, then completed tasks sorted by completion date
-      const pending = [...this.pendingTasks].sort((a, b) =>
-        new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-      )
+      // Pending tasks sorted by due date (tasks without date at end), then completed tasks sorted by completion date
+      const pending = [...this.pendingTasks].sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0
+        if (!a.dueDate) return 1
+        if (!b.dueDate) return -1
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      })
       const completed = [...this.completedTasks].sort((a, b) =>
         new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime()
       )
