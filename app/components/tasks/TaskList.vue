@@ -90,8 +90,8 @@ const handleDateSelect = async (newDate: string) => {
   if (!taskToReschedule.value) return
 
   try {
-    // Convert date string to ISO datetime
-    const dueDate = newDate ? new Date(newDate).toISOString() : new Date().toISOString()
+    // Convert date string to ISO datetime, or null if no date
+    const dueDate = newDate ? new Date(newDate).toISOString() : null
     await tasksStore.update(taskToReschedule.value.id, { dueDate })
     toast.add({ title: 'Date modifiée', color: 'success' })
   } catch (e) {

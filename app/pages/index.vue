@@ -4,9 +4,15 @@ import type { Task } from '~/types'
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
 const toast = useToast()
+const { confirm } = useConfirm()
+const router = useRouter()
 
 const isLoading = ref(true)
 const isDemoLoading = ref(false)
+
+// Date sheet state for swipe reschedule
+const isDateSheetOpen = ref(false)
+const taskToReschedule = ref<Task | null>(null)
 
 // Helper to check if date is today
 const isToday = (date: Date): boolean => {
@@ -54,6 +60,74 @@ const todayTasks = computed(() => {
 const getProjectName = (projectId: string): string => {
   const project = projectsStore.getById(projectId)
   return project?.name || ''
+}
+
+// Task handlers
+const handleTaskClick = (task: Task) => {
+  router.push('/tasks')
+}
+
+const handleComplete = async (task: Task) => {
+  try {
+    await tasksStore.complete(task.id)
+    toast.add({
+      title: 'Tâche terminée',
+      icon: 'i-lucide-check-circle',
+      color: 'success',
+      duration: 5000,
+      actions: [{
+        label: 'Annuler',
+        color: 'neutral' as const,
+        variant: 'outline' as const,
+        onClick: async () => {
+          try {
+            await tasksStore.uncomplete(task.id)
+          } catch (e) {
+            toast.add({ title: 'Erreur', description: 'Impossible de restaurer la tâche.', color: 'error' })
+          }
+        }
+      }]
+    })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
+  }
+}
+
+const handleDelete = async (task: Task) => {
+  const confirmed = await confirm({
+    title: 'Supprimer la tâche',
+    message: `Êtes-vous sûr de vouloir supprimer "${task.label}" ?`,
+    confirmLabel: 'Supprimer',
+    confirmColor: 'error'
+  })
+
+  if (confirmed) {
+    try {
+      await tasksStore.remove(task.id)
+      toast.add({ title: 'Tâche supprimée', color: 'success' })
+    } catch (e) {
+      toast.add({ title: 'Erreur', description: 'Impossible de supprimer la tâche.', color: 'error' })
+    }
+  }
+}
+
+const handleReschedule = (task: Task) => {
+  taskToReschedule.value = task
+  isDateSheetOpen.value = true
+}
+
+const handleDateSelect = async (newDate: string) => {
+  if (!taskToReschedule.value) return
+
+  try {
+    const dueDate = newDate ? new Date(newDate).toISOString() : null
+    await tasksStore.update(taskToReschedule.value.id, { dueDate })
+    toast.add({ title: 'Date modifiée', color: 'success' })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la date.', color: 'error' })
+  }
+
+  taskToReschedule.value = null
 }
 
 const loadDemoData = async () => {
@@ -190,27 +264,16 @@ onMounted(async () => {
           En retard
         </h2>
         <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
-          <NuxtLink
+          <TasksTaskItem
             v-for="task in overdueTasks"
             :key="task.id"
-            :to="`/tasks`"
-            class="flex items-center gap-3 py-3 px-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-          >
-            <div class="size-5 rounded-full border-2 border-red-400 flex-shrink-0" />
-            <div class="flex-1 min-w-0">
-              <p class="text-base text-gray-900 dark:text-gray-100 truncate">{{ task.label }}</p>
-              <div class="flex items-center gap-3 mt-1">
-                <span class="flex items-center gap-1 text-sm text-red-500">
-                  <UIcon name="i-lucide-calendar" class="size-4" />
-                  {{ new Date(task.dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) }}
-                </span>
-                <span v-if="getProjectName(task.projectId)" class="flex items-center gap-1 text-sm text-gray-500">
-                  <UIcon name="i-lucide-hash" class="size-4" />
-                  {{ getProjectName(task.projectId) }}
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
+            :task="task"
+            :project-name="getProjectName(task.projectId)"
+            @click="handleTaskClick"
+            @complete="handleComplete"
+            @delete="handleDelete"
+            @reschedule="handleReschedule"
+          />
         </div>
       </div>
 
@@ -221,34 +284,16 @@ onMounted(async () => {
           Aujourd'hui
         </h2>
         <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
-          <NuxtLink
+          <TasksTaskItem
             v-for="task in todayTasks"
             :key="task.id"
-            :to="`/tasks`"
-            class="flex items-center gap-3 py-3 px-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-          >
-            <div
-              class="size-5 rounded-full border-2 flex-shrink-0"
-              :class="{
-                'border-red-400': task.priority === 'high',
-                'border-amber-400': task.priority === 'medium',
-                'border-gray-300 dark:border-gray-600': task.priority === 'low'
-              }"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="text-base text-gray-900 dark:text-gray-100 truncate">{{ task.label }}</p>
-              <div class="flex items-center gap-3 mt-1">
-                <span class="flex items-center gap-1 text-sm text-green-600">
-                  <UIcon name="i-lucide-calendar" class="size-4" />
-                  Aujourd'hui
-                </span>
-                <span v-if="getProjectName(task.projectId)" class="flex items-center gap-1 text-sm text-gray-500">
-                  <UIcon name="i-lucide-hash" class="size-4" />
-                  {{ getProjectName(task.projectId) }}
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
+            :task="task"
+            :project-name="getProjectName(task.projectId)"
+            @click="handleTaskClick"
+            @complete="handleComplete"
+            @delete="handleDelete"
+            @reschedule="handleReschedule"
+          />
         </div>
       </div>
 
@@ -299,6 +344,13 @@ onMounted(async () => {
         </div>
       </div>
     </template>
+
+    <!-- Date sheet for swipe reschedule -->
+    <TasksTaskDateSheet
+      v-model:open="isDateSheetOpen"
+      :current-date="taskToReschedule?.dueDate || ''"
+      @select="handleDateSelect"
+    />
     </div>
 
     <template #fallback>
