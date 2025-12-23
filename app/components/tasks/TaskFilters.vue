@@ -106,7 +106,6 @@ onMounted(() => {
             <!-- All projects option -->
             <button
               class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              :class="{ 'bg-primary-50 dark:bg-primary-900/30': !selectedProjectId }"
               @click="selectProject(null)"
             >
               <div class="flex items-center gap-3">
@@ -181,7 +180,7 @@ onMounted(() => {
                 v-for="option in priorityOptions"
                 :key="option.value ?? 'all'"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                :class="{ 'bg-primary-50 dark:bg-primary-900/30': selectedPriority === option.value }"
+                :class="{ 'bg-primary-50 dark:bg-primary-900/30': option.value !== null && selectedPriority === option.value }"
                 @click="selectPriority(option.value)"
               >
                 <div class="flex items-center gap-3">
