@@ -90,6 +90,13 @@ Each store exposes:
 - `fetchAll()`, `fetchById()`, `create()`, `update()`, `remove()` - actions
 - Getters: `sortedByDate`, `getById`
 
+Tasks store additional features:
+- `complete(id)`, `uncomplete(id)` - mark task as done/undone
+- `pendingTasks`, `completedTasks` - filtered getters
+- `sortedByDueDate` - pending first (sorted by date, no-date at end), then completed
+- `filters` - reactive filters state (projectId, priority, search)
+- `setFilters()`, `resetFilters()` - filter management
+
 ## Important Implementation Details
 
 ### SSR & Hydration
@@ -114,8 +121,39 @@ Each store exposes:
 ## Reference Entities
 
 The example implementation uses:
-- **Project** - id, name, createdAt, updatedAt
-- **Task** - id, title, description, status, priority, projectId, createdAt, updatedAt
+- **Project** - id, name, isDefault (optional), createdAt
+- **Task** - id, label, description (optional), dueDate (nullable), priority, projectId, completedAt (nullable), createdAt
+
+### Task Schema
+```typescript
+const TaskSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  dueDate: z.string().datetime().nullable(),  // null = no due date
+  priority: z.enum(['low', 'medium', 'high']),
+  projectId: z.string().uuid(),
+  completedAt: z.string().datetime().nullable().optional(),  // null = not completed
+  createdAt: z.string().datetime()
+})
+```
+
+## Key Components
+
+### Task Components
+- **TaskItem** - List item with swipe-to-reschedule, completion checkbox, priority colors
+  - Props: `task`, `projectName`, `hideActions` (optional)
+  - Events: `click`, `complete`, `delete`, `reschedule`
+- **TaskDateSheet** - Bottom sheet for quick date selection with presets
+- **TaskDatePicker** - Popover date picker with presets and "no date" option
+- **TaskDetailModal** - Slideover for viewing/editing task details
+- **TaskFilters** - Search, project filter, priority filter
+
+### Mobile UX Patterns
+- Swipe left on TaskItem triggers reschedule action
+- Touch events: `touchstart`, `touchmove`, `touchend` for gesture handling
+- Floating action button (FAB) for quick task creation
+- Toast notifications with undo actions (Todoist-style)
 
 ## Using This Starter for New Projects
 
