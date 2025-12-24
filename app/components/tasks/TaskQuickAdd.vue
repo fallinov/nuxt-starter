@@ -14,6 +14,8 @@ const emit = defineEmits<{
 }>()
 
 const projectsStore = useProjectsStore()
+const { formatRelativeDate, getTomorrowDateString } = useDateFormat()
+const { simpleDatePresets: datePresets } = useDatePresets()
 
 const isExpanded = ref(false)
 const labelInput = ref<HTMLInputElement>()
@@ -32,20 +34,6 @@ const priorityOptions = [
   { label: 'Haute', value: 'high' as Priority, color: PRIORITY_COLORS.high }
 ]
 
-const datePresets = computed(() => {
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const nextWeek = new Date()
-  nextWeek.setDate(nextWeek.getDate() + 7)
-
-  return [
-    { label: "Aujourd'hui", value: today.toISOString().split('T')[0] as string, icon: 'i-lucide-calendar' },
-    { label: 'Demain', value: tomorrow.toISOString().split('T')[0] as string, icon: 'i-lucide-sun' },
-    { label: 'Semaine prochaine', value: nextWeek.toISOString().split('T')[0] as string, icon: 'i-lucide-calendar-days' }
-  ]
-})
-
 const projectOptions = computed(() => {
   return projectsStore.items.map(p => ({
     label: p.name,
@@ -63,20 +51,7 @@ const selectedPriority = computed(() => {
 
 const formattedDueDate = computed(() => {
   if (!state.dueDate) return null
-  const date = new Date(state.dueDate)
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  today.setHours(0, 0, 0, 0)
-  tomorrow.setHours(0, 0, 0, 0)
-  const taskDate = new Date(date)
-  taskDate.setHours(0, 0, 0, 0)
-
-  if (taskDate.getTime() === today.getTime()) return "Aujourd'hui"
-  if (taskDate.getTime() === tomorrow.getTime()) return 'Demain'
-
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  return formatRelativeDate(state.dueDate)
 })
 
 const canSubmit = computed(() => {
@@ -87,9 +62,7 @@ const expand = () => {
   isExpanded.value = true
   // Set default date to tomorrow if not set
   if (!state.dueDate) {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    state.dueDate = tomorrow.toISOString().split('T')[0] as string
+    state.dueDate = getTomorrowDateString()
   }
   // Set default project if only one exists and none selected
   if (!state.projectId && projectsStore.items.length === 1) {

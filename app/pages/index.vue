@@ -5,6 +5,7 @@ const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
 const toast = useToast()
 const { confirm } = useConfirm()
+const { isToday, isOverdue } = useDateFormat()
 
 const isLoading = ref(true)
 const isDemoLoading = ref(false)
@@ -17,26 +18,6 @@ const selectedTask = ref<Task | null>(null)
 // Date sheet state for swipe reschedule
 const isDateSheetOpen = ref(false)
 const taskToReschedule = ref<Task | null>(null)
-
-// Helper to check if date is today
-const isToday = (dueDate: string | null): boolean => {
-  if (!dueDate) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const compareDate = new Date(dueDate)
-  compareDate.setHours(0, 0, 0, 0)
-  return compareDate.getTime() === today.getTime()
-}
-
-// Helper to check if date is overdue (before today)
-const isOverdue = (dueDate: string | null): boolean => {
-  if (!dueDate) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const compareDate = new Date(dueDate)
-  compareDate.setHours(0, 0, 0, 0)
-  return compareDate < today
-}
 
 // Filter only pending tasks (not completed)
 const pendingTasks = computed(() => {
@@ -420,14 +401,11 @@ onMounted(async () => {
     </template>
 
     <!-- Floating Action Button -->
-    <button
+    <UiFab
       v-if="projectsStore.items.length > 0"
-      class="fixed bottom-6 right-6 size-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
-      aria-label="Ajouter une tâche"
+      label="Ajouter une tâche"
       @click="openCreateModal"
-    >
-      <UIcon name="i-lucide-plus" class="size-7" />
-    </button>
+    />
 
     <!-- Task detail modal -->
     <TasksTaskDetailModal

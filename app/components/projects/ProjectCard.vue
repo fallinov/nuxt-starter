@@ -14,13 +14,9 @@ const emit = defineEmits<{
   setDefault: [project: Project]
 }>()
 
-const formattedDate = computed(() => {
-  return new Date(props.project.createdAt).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
-})
+const { formatDateFull } = useDateFormat()
+
+const formattedDate = computed(() => formatDateFull(props.project.createdAt))
 
 const dropdownItems = computed(() => {
   const items = [

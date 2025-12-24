@@ -226,13 +226,10 @@ onMounted(async () => {
       </div>
 
       <!-- Floating Action Button -->
-      <button
-        class="fixed bottom-6 right-6 size-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
-        aria-label="Ajouter une tâche"
+      <UiFab
+        label="Ajouter une tâche"
         @click="openCreateModal"
-      >
-        <UIcon name="i-lucide-plus" class="size-7" />
-      </button>
+      />
     </template>
 
     <!-- Unified Modal for Create/View/Edit -->

@@ -11,73 +11,14 @@ const emit = defineEmits<{
   'select': [value: string]
 }>()
 
-// Helper to get day name
-const getDayName = (date: Date): string => {
-  return date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-}
+const { extractDatePart, formatDateWithYear } = useDateFormat()
+const { datePresets } = useDatePresets()
 
-// Date presets
-const datePresets = computed(() => {
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  // Find next Saturday for "Ce week-end"
-  const nextSaturday = new Date()
-  const daysUntilSaturday = (6 - nextSaturday.getDay() + 7) % 7 || 7
-  nextSaturday.setDate(nextSaturday.getDate() + daysUntilSaturday)
-
-  // Find next Monday for "Semaine prochaine"
-  const nextMonday = new Date()
-  const daysUntilMonday = (8 - nextMonday.getDay()) % 7 || 7
-  nextMonday.setDate(nextMonday.getDate() + daysUntilMonday)
-
-  return [
-    {
-      label: "Aujourd'hui",
-      value: today.toISOString().split('T')[0] as string,
-      day: getDayName(today),
-      icon: 'i-lucide-calendar',
-      color: 'text-green-600'
-    },
-    {
-      label: 'Demain',
-      value: tomorrow.toISOString().split('T')[0] as string,
-      day: getDayName(tomorrow),
-      icon: 'i-lucide-sun',
-      color: 'text-amber-500'
-    },
-    {
-      label: 'Ce week-end',
-      value: nextSaturday.toISOString().split('T')[0] as string,
-      day: getDayName(nextSaturday),
-      icon: 'i-lucide-sofa',
-      color: 'text-blue-500'
-    },
-    {
-      label: 'Semaine prochaine',
-      value: nextMonday.toISOString().split('T')[0] as string,
-      day: getDayName(nextMonday),
-      icon: 'i-lucide-arrow-right',
-      color: 'text-purple-500'
-    }
-  ]
-})
-
-const currentDateValue = computed(() => {
-  if (!props.currentDate) return ''
-  return props.currentDate.includes('T')
-    ? props.currentDate.split('T')[0] as string
-    : props.currentDate
-})
+const currentDateValue = computed(() => extractDatePart(props.currentDate))
 
 const formattedCurrentDate = computed(() => {
   if (!currentDateValue.value) return 'Aucune date'
-  return new Date(currentDateValue.value).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  return formatDateWithYear(currentDateValue.value)
 })
 
 const selectPreset = (value: string) => {

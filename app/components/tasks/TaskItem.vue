@@ -19,6 +19,8 @@ const emit = defineEmits<{
   reschedule: [task: Task]
 }>()
 
+const { formatRelativeDate, isOverdue: checkOverdue } = useDateFormat()
+
 // Swipe handling
 const touchStartX = ref(0)
 const touchCurrentX = ref(0)
@@ -63,42 +65,13 @@ const handleTouchEnd = () => {
   swipeOffset.value = 0
 }
 
-const formattedDueDate = computed(() => {
-  if (!props.task.dueDate) return 'Pas de date'
-
-  const date = new Date(props.task.dueDate)
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  // Reset time for comparison
-  today.setHours(0, 0, 0, 0)
-  tomorrow.setHours(0, 0, 0, 0)
-  const taskDate = new Date(date)
-  taskDate.setHours(0, 0, 0, 0)
-
-  if (taskDate.getTime() === today.getTime()) {
-    return "Aujourd'hui"
-  }
-  if (taskDate.getTime() === tomorrow.getTime()) {
-    return 'Demain'
-  }
-
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short'
-  })
-})
+const formattedDueDate = computed(() => formatRelativeDate(props.task.dueDate))
 
 const isCompleted = computed(() => !!props.task.completedAt)
 
 const isOverdue = computed(() => {
-  if (isCompleted.value || !props.task.dueDate) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const taskDate = new Date(props.task.dueDate)
-  taskDate.setHours(0, 0, 0, 0)
-  return taskDate < today
+  if (isCompleted.value) return false
+  return checkOverdue(props.task.dueDate)
 })
 
 const priorityColor = computed(() => {

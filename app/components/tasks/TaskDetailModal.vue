@@ -24,6 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const projectsStore = useProjectsStore()
+const { formatDateWithYear, getTomorrowDateString } = useDateFormat()
 
 // Create mode state
 const createState = reactive({
@@ -47,12 +48,7 @@ const isCreateMode = computed(() => props.mode === 'create')
 
 const formattedCreatedAt = computed(() => {
   if (!props.task) return ''
-  const date = new Date(props.task.createdAt)
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  return formatDateWithYear(props.task.createdAt)
 })
 
 const canCreate = computed(() => {
@@ -75,9 +71,7 @@ const resetCreateState = () => {
 
 const initCreateMode = () => {
   // Set default date to tomorrow
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  createState.dueDate = tomorrow.toISOString().split('T')[0] as string
+  createState.dueDate = getTomorrowDateString()
 
   // Set default project: use prop, then store default, then first project
   createState.projectId = props.defaultProjectId
