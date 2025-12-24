@@ -233,59 +233,39 @@ onMounted(async () => {
       <!-- Stats cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <NuxtLink to="/projects">
-          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
-            <div class="flex items-center gap-4">
-              <div class="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/30">
-                <UIcon name="i-lucide-folder" class="size-6 text-primary-600 dark:text-primary-400" />
-              </div>
-              <div>
-                <p class="text-2xl font-bold">{{ stats.projects }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Projets</p>
-              </div>
-            </div>
-          </UCard>
+          <UiStatCard
+            :value="stats.projects"
+            label="Projets"
+            icon="i-lucide-folder"
+            color="primary"
+          />
         </NuxtLink>
 
         <NuxtLink to="/tasks">
-          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
-            <div class="flex items-center gap-4">
-              <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <UIcon name="i-lucide-clipboard-list" class="size-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p class="text-2xl font-bold">{{ stats.tasks }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Tâches</p>
-              </div>
-            </div>
-          </UCard>
+          <UiStatCard
+            :value="stats.tasks"
+            label="Tâches"
+            icon="i-lucide-clipboard-list"
+            color="blue"
+          />
         </NuxtLink>
 
         <NuxtLink to="/tasks?priority=high">
-          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
-            <div class="flex items-center gap-4">
-              <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
-                <UIcon name="i-lucide-triangle-alert" class="size-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <p class="text-2xl font-bold">{{ stats.highPriority }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Haute priorité</p>
-              </div>
-            </div>
-          </UCard>
+          <UiStatCard
+            :value="stats.highPriority"
+            label="Haute priorité"
+            icon="i-lucide-triangle-alert"
+            color="red"
+          />
         </NuxtLink>
 
         <a href="#overdue" class="scroll-smooth">
-          <UCard class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer h-full">
-            <div class="flex items-center gap-4">
-              <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-                <UIcon name="i-lucide-clock" class="size-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <div>
-                <p class="text-2xl font-bold">{{ stats.overdue }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">En retard</p>
-              </div>
-            </div>
-          </UCard>
+          <UiStatCard
+            :value="stats.overdue"
+            label="En retard"
+            icon="i-lucide-clock"
+            color="yellow"
+          />
         </a>
       </div>
 
