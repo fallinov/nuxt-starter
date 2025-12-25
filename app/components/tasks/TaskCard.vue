@@ -14,17 +14,14 @@ const emit = defineEmits<{
   delete: [task: Task]
 }>()
 
+const { formatDateWithYear, isOverdue: checkOverdue } = useDateFormat()
+
 const formattedDueDate = computed(() => {
-  return new Date(props.task.dueDate).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  if (!props.task.dueDate) return 'Pas de date'
+  return formatDateWithYear(props.task.dueDate)
 })
 
-const isOverdue = computed(() => {
-  return new Date(props.task.dueDate) < new Date()
-})
+const isOverdue = computed(() => checkOverdue(props.task.dueDate))
 </script>
 
 <template>

@@ -67,22 +67,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col sm:flex-row gap-3">
+  <div class="flex flex-col gap-2 sm:gap-3">
     <!-- Search input -->
     <UInput
       v-model="searchQuery"
       icon="i-lucide-search"
       placeholder="Rechercher..."
-      class="flex-1"
+      size="lg"
+      class="w-full"
     />
 
-    <!-- Project filter -->
-    <UPopover v-model:open="isProjectFilterOpen">
-      <UButton
-        color="neutral"
-        variant="soft"
-        class="justify-start"
-      >
+    <!-- Filter buttons row -->
+    <div class="flex gap-2 sm:gap-3">
+      <!-- Project filter -->
+      <UPopover v-model:open="isProjectFilterOpen" class="flex-1">
+        <UButton
+          color="neutral"
+          variant="soft"
+          size="lg"
+          class="justify-start w-full"
+        >
         <template #leading>
           <UIcon
             name="i-lucide-hash"
@@ -102,7 +106,6 @@ onMounted(() => {
             <!-- All projects option -->
             <button
               class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              :class="{ 'bg-primary-50 dark:bg-primary-900/30': !selectedProjectId }"
               @click="selectProject(null)"
             >
               <div class="flex items-center gap-3">
@@ -146,70 +149,72 @@ onMounted(() => {
       </template>
     </UPopover>
 
-    <!-- Priority filter -->
-    <UPopover v-model:open="isPriorityFilterOpen">
-      <UButton
-        color="neutral"
-        variant="soft"
-        class="justify-start"
-      >
-        <template #leading>
-          <svg
-            class="size-4"
-            :class="selectedPriorityOption?.color"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M5 21V3.99C5 3.44 5.45 3 6 3h12c.55 0 1 .44 1 .99V21l-7-3-7 3z" />
-          </svg>
-        </template>
-        {{ selectedPriorityOption?.label || 'Priorité' }}
-        <template #trailing>
-          <UIcon name="i-lucide-chevron-down" class="size-4" />
-        </template>
-      </UButton>
-
-      <template #content>
-        <div class="w-48 p-2">
-          <div class="space-y-1">
-            <button
-              v-for="option in priorityOptions"
-              :key="option.value ?? 'all'"
-              class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              :class="{ 'bg-primary-50 dark:bg-primary-900/30': selectedPriority === option.value }"
-              @click="selectPriority(option.value)"
+      <!-- Priority filter -->
+      <UPopover v-model:open="isPriorityFilterOpen" class="flex-1">
+        <UButton
+          color="neutral"
+          variant="soft"
+          size="lg"
+          class="justify-start w-full"
+        >
+          <template #leading>
+            <svg
+              class="size-4"
+              :class="selectedPriorityOption?.color"
+              viewBox="0 0 24 24"
+              fill="currentColor"
             >
-              <div class="flex items-center gap-3">
-                <svg
-                  class="size-5"
-                  :class="option.color"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M5 21V3.99C5 3.44 5.45 3 6 3h12c.55 0 1 .44 1 .99V21l-7-3-7 3z" />
-                </svg>
-                <span class="text-sm">{{ option.label }}</span>
-              </div>
-              <UIcon
-                v-if="selectedPriority === option.value"
-                name="i-lucide-check"
-                class="size-4 text-primary"
-              />
-            </button>
-          </div>
-        </div>
-      </template>
-    </UPopover>
+              <path d="M5 21V3.99C5 3.44 5.45 3 6 3h12c.55 0 1 .44 1 .99V21l-7-3-7 3z" />
+            </svg>
+          </template>
+          {{ selectedPriorityOption?.label || 'Priorité' }}
+          <template #trailing>
+            <UIcon name="i-lucide-chevron-down" class="size-4" />
+          </template>
+        </UButton>
 
-    <!-- Reset button -->
-    <UButton
-      v-if="hasActiveFilters"
-      color="neutral"
-      variant="ghost"
-      icon="i-lucide-x"
-      @click="resetFilters"
-    >
-      Réinitialiser
-    </UButton>
+        <template #content>
+          <div class="w-48 p-2">
+            <div class="space-y-1">
+              <button
+                v-for="option in priorityOptions"
+                :key="option.value ?? 'all'"
+                class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                :class="{ 'bg-primary-50 dark:bg-primary-900/30': option.value !== null && selectedPriority === option.value }"
+                @click="selectPriority(option.value)"
+              >
+                <div class="flex items-center gap-3">
+                  <svg
+                    class="size-5"
+                    :class="option.color"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M5 21V3.99C5 3.44 5.45 3 6 3h12c.55 0 1 .44 1 .99V21l-7-3-7 3z" />
+                  </svg>
+                  <span class="text-sm">{{ option.label }}</span>
+                </div>
+                <UIcon
+                  v-if="selectedPriority === option.value"
+                  name="i-lucide-check"
+                  class="size-4 text-primary"
+                />
+              </button>
+            </div>
+          </div>
+        </template>
+      </UPopover>
+
+      <!-- Reset button -->
+      <UButton
+        v-if="hasActiveFilters"
+        color="neutral"
+        variant="ghost"
+        size="lg"
+        icon="i-lucide-x"
+        @click="resetFilters"
+        class="flex-shrink-0"
+      />
+    </div>
   </div>
 </template>

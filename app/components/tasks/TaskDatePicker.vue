@@ -12,98 +12,14 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const { formatRelativeDate, extractDatePart, isOverdue: checkOverdue, formatDateFull } = useDateFormat()
+const { datePresets } = useDatePresets()
+
 const isOpen = ref(false)
 
-// Helper to get day name
-const getDayName = (date: Date): string => {
-  return date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-}
+const currentDateValue = computed(() => extractDatePart(props.modelValue))
 
-// Helper to format date for display
-const formatDisplayDate = (dateString: string): string => {
-  if (!dateString) return 'Échéance'
-
-  const date = new Date(dateString)
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  // Reset hours for comparison
-  today.setHours(0, 0, 0, 0)
-  tomorrow.setHours(0, 0, 0, 0)
-  const compareDate = new Date(date)
-  compareDate.setHours(0, 0, 0, 0)
-
-  if (compareDate.getTime() === today.getTime()) return "Aujourd'hui"
-  if (compareDate.getTime() === tomorrow.getTime()) return 'Demain'
-
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-}
-
-// Date presets
-const datePresets = computed(() => {
-  const today = new Date()
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  // Find next Saturday for "Ce week-end"
-  const nextSaturday = new Date()
-  const daysUntilSaturday = (6 - nextSaturday.getDay() + 7) % 7 || 7
-  nextSaturday.setDate(nextSaturday.getDate() + daysUntilSaturday)
-
-  // Find next Monday for "Semaine prochaine"
-  const nextMonday = new Date()
-  const daysUntilMonday = (8 - nextMonday.getDay()) % 7 || 7
-  nextMonday.setDate(nextMonday.getDate() + daysUntilMonday)
-
-  return [
-    {
-      label: "Aujourd'hui",
-      value: today.toISOString().split('T')[0] as string,
-      day: getDayName(today),
-      icon: 'i-lucide-calendar',
-      color: 'text-green-600'
-    },
-    {
-      label: 'Demain',
-      value: tomorrow.toISOString().split('T')[0] as string,
-      day: getDayName(tomorrow),
-      icon: 'i-lucide-sun',
-      color: 'text-amber-500'
-    },
-    {
-      label: 'Ce week-end',
-      value: nextSaturday.toISOString().split('T')[0] as string,
-      day: getDayName(nextSaturday),
-      icon: 'i-lucide-sofa',
-      color: 'text-blue-500'
-    },
-    {
-      label: 'Semaine prochaine',
-      value: nextMonday.toISOString().split('T')[0] as string,
-      day: getDayName(nextMonday),
-      icon: 'i-lucide-arrow-right',
-      color: 'text-purple-500'
-    }
-  ]
-})
-
-const currentDateValue = computed(() => {
-  if (!props.modelValue) return ''
-  // Handle both ISO datetime and date-only formats
-  return props.modelValue.includes('T')
-    ? props.modelValue.split('T')[0] as string
-    : props.modelValue
-})
-
-const isOverdue = computed(() => {
-  if (!props.modelValue) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const taskDate = new Date(props.modelValue)
-  taskDate.setHours(0, 0, 0, 0)
-  return taskDate < today
-})
+const isOverdue = computed(() => checkOverdue(props.modelValue))
 
 const selectPreset = (value: string) => {
   emit('update:modelValue', value)
@@ -137,7 +53,7 @@ const clearDate = () => {
         />
       </template>
       <span :class="isOverdue ? 'text-red-500' : modelValue ? '' : 'text-gray-500'">
-        {{ formatDisplayDate(currentDateValue) }}
+        {{ formatRelativeDate(currentDateValue, 'Échéance') }}
       </span>
     </UButton>
 
@@ -145,7 +61,7 @@ const clearDate = () => {
       <div class="w-72 p-2">
         <!-- Header with current selection -->
         <div class="px-3 py-2 mb-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-center">
-          {{ currentDateValue ? new Date(currentDateValue).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Aucune date' }}
+          {{ currentDateValue ? formatDateFull(currentDateValue) : 'Aucune date' }}
         </div>
 
         <!-- Presets -->

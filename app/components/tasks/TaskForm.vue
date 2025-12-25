@@ -19,6 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const projectsStore = useProjectsStore()
+const { extractDatePart, getTomorrowDateString } = useDateFormat()
 
 const priorityOptions = [
   { label: 'Basse', value: 'low' },
@@ -26,13 +27,11 @@ const priorityOptions = [
   { label: 'Haute', value: 'high' }
 ]
 
-const formatDateForInput = (dateString?: string): string => {
+const formatDateForInput = (dateString?: string | null): string => {
   if (!dateString) {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.toISOString().split('T')[0] as string
+    return getTomorrowDateString()
   }
-  return dateString.split('T')[0] as string
+  return extractDatePart(dateString)
 }
 
 const state = reactive({

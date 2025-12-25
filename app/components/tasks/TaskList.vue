@@ -11,6 +11,10 @@ const isModalOpen = ref(false)
 const modalMode = ref<'view' | 'create'>('view')
 const selectedTask = ref<Task | null>(null)
 
+// Date sheet state for swipe reschedule
+const isDateSheetOpen = ref(false)
+const taskToReschedule = ref<Task | null>(null)
+
 const getProjectName = (projectId: string): string => {
   const project = projectsStore.getById(projectId)
   return project?.name || 'Projet inconnu'
@@ -77,23 +81,66 @@ const handleDelete = async (task: Task) => {
   }
 }
 
-const handleComplete = async (task: Task) => {
-  const confirmed = await confirm({
-    title: 'Terminer la tâche',
-    message: `Marquer "${task.label}" comme terminée ? La tâche sera supprimée.`,
-    confirmLabel: 'Terminer',
-    confirmColor: 'primary'
-  })
+const handleReschedule = (task: Task) => {
+  taskToReschedule.value = task
+  isDateSheetOpen.value = true
+}
 
-  if (confirmed) {
+const handleDateSelect = async (newDate: string) => {
+  if (!taskToReschedule.value) return
+
+  try {
+    // Convert date string to ISO datetime, or null if no date
+    const dueDate = newDate ? new Date(newDate).toISOString() : null
+    await tasksStore.update(taskToReschedule.value.id, { dueDate })
+    toast.add({ title: dueDate ? 'Date modifiée' : 'Date supprimée', color: 'success' })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de modifier la date.', color: 'error' })
+    console.error(e)
+  } finally {
+    taskToReschedule.value = null
+  }
+}
+
+const handleComplete = async (task: Task) => {
+  // If task is already completed, uncomplete it
+  if (task.completedAt) {
     try {
-      await tasksStore.remove(task.id)
-      closeModal()
-      toast.add({ title: 'Tâche terminée', description: 'Bravo ! La tâche a été complétée.', color: 'success' })
+      await tasksStore.uncomplete(task.id)
     } catch (e) {
-      toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
+      toast.add({ title: 'Erreur', description: 'Impossible de réactiver la tâche.', color: 'error' })
       console.error(e)
     }
+    return
+  }
+
+  try {
+    await tasksStore.complete(task.id)
+    closeModal()
+
+    // Show toast with undo action
+    toast.add({
+      title: 'Tâche terminée',
+      icon: 'i-lucide-check-circle',
+      color: 'success',
+      duration: 5000,
+      actions: [{
+        label: 'Annuler',
+        color: 'neutral' as const,
+        variant: 'outline' as const,
+        onClick: async () => {
+          try {
+            await tasksStore.uncomplete(task.id)
+          } catch (e) {
+            toast.add({ title: 'Erreur', description: 'Impossible de restaurer la tâche.', color: 'error' })
+            console.error(e)
+          }
+        }
+      }]
+    })
+  } catch (e) {
+    toast.add({ title: 'Erreur', description: 'Impossible de terminer la tâche.', color: 'error' })
+    console.error(e)
   }
 }
 
@@ -103,21 +150,26 @@ onMounted(async () => {
     projectsStore.fetchAll()
   ])
 
-  // Appliquer le filtre de projet depuis l'URL si présent
+  // Appliquer les filtres depuis l'URL si présents
   const projectId = route.query.projectId as string | undefined
-  if (projectId) {
-    tasksStore.setFilters({ projectId })
+  const priority = route.query.priority as 'high' | 'medium' | 'low' | undefined
+
+  if (projectId || priority) {
+    tasksStore.setFilters({
+      ...(projectId && { projectId }),
+      ...(priority && { priority })
+    })
   }
 })
 </script>
 
 <template>
   <div class="relative min-h-[calc(100vh-200px)]">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Tâches</h1>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">Tâches</h1>
     </div>
 
-    <TasksTaskFilters class="mb-6" />
+    <TasksTaskFilters class="mb-4 sm:mb-6" />
 
     <div v-if="tasksStore.loading" class="flex justify-center py-12">
       <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
@@ -148,7 +200,7 @@ onMounted(async () => {
 
     <template v-else>
       <!-- Task list -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
         <template v-if="tasksStore.sortedByDueDate.length > 0">
           <TasksTaskItem
             v-for="task in tasksStore.sortedByDueDate"
@@ -158,6 +210,7 @@ onMounted(async () => {
             @click="openDetailModal"
             @complete="handleComplete"
             @delete="handleDelete"
+            @reschedule="handleReschedule"
           />
         </template>
 
@@ -173,13 +226,10 @@ onMounted(async () => {
       </div>
 
       <!-- Floating Action Button -->
-      <button
-        class="fixed bottom-6 right-6 size-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
-        aria-label="Ajouter une tâche"
+      <UiFab
+        label="Ajouter une tâche"
         @click="openCreateModal"
-      >
-        <UIcon name="i-lucide-plus" class="size-7" />
-      </button>
+      />
     </template>
 
     <!-- Unified Modal for Create/View/Edit -->
@@ -191,6 +241,13 @@ onMounted(async () => {
       @update="handleUpdate"
       @delete="handleDelete"
       @complete="handleComplete"
+    />
+
+    <!-- Date sheet for swipe reschedule -->
+    <TasksTaskDateSheet
+      v-model:open="isDateSheetOpen"
+      :current-date="taskToReschedule?.dueDate || ''"
+      @select="handleDateSelect"
     />
   </div>
 </template>

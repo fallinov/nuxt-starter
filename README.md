@@ -6,8 +6,8 @@ Un starter Nuxt réutilisable démontrant une architecture CRUD générique via 
 
 | Outil      | Version    | Usage                   |
 |------------|------------|-------------------------|
-| Nuxt       | 3.x        | Framework               |
-| Nuxt UI    | 2.x        | Composants UI           |
+| Nuxt       | 4.x        | Framework               |
+| Nuxt UI    | 4.x        | Composants UI           |
 | Pinia      | 2.x        | State management        |
 | Zod        | latest     | Validation des données  |
 | Vitest     | latest     | Tests unitaires         |
@@ -46,7 +46,7 @@ pnpm test:run   # Lancer les tests une fois
 ├── app/
 │   ├── components/
 │   │   ├── projects/       # Composants projets (List, Card, Form)
-│   │   ├── tasks/          # Composants tâches (List, Card, Form, Filters)
+│   │   ├── tasks/          # Composants tâches (List, Item, Form, Filters, DateSheet)
 │   │   └── ui/             # Composants UI réutilisables
 │   ├── composables/        # Composables Vue (useConfirm, useNotification)
 │   ├── layouts/            # Layouts Nuxt
@@ -170,6 +170,12 @@ pnpm test:run --coverage
 
 ## Fonctionnalités
 
+### Dashboard
+- Statistiques cliquables (projets, tâches, haute priorité, en retard)
+- Sections de tâches : En retard, Aujourd'hui, Pas de date
+- Bouton flottant pour créer une tâche
+- Accès rapide aux projets récents
+
 ### Projets
 - Liste des projets
 - Création de projet
@@ -177,16 +183,23 @@ pnpm test:run --coverage
 
 ### Tâches
 - Liste des tâches avec filtres (projet, priorité, recherche)
-- Création de tâche
-- Modification de tâche
-- Suppression de tâche
+- Création/modification/suppression de tâche
 - Priorités : basse, moyenne, haute
-- Date d'échéance
+- Date d'échéance (optionnelle)
+- Complétion avec toast d'annulation (style Todoist)
+- Tâches terminées affichées en fin de liste
+
+### UX Mobile
+- Interface optimisée pour mobile (marges réduites, texte plus grand)
+- Swipe vers la gauche pour reprogrammer une tâche
+- Bottom sheet avec presets de dates (Aujourd'hui, Demain, Week-end, etc.)
+- Touch targets agrandis pour faciliter l'interaction
+- Bouton flottant d'ajout de tâche
 
 ### UI
 - Mode sombre/clair
 - Responsive (mobile/desktop)
-- Notifications toast
+- Notifications toast avec actions
 - Modales de confirmation
 - États vides avec appel à l'action
 
