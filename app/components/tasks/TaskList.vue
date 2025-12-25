@@ -144,13 +144,8 @@ const handleComplete = async (task: Task) => {
   }
 }
 
-onMounted(async () => {
-  await Promise.all([
-    tasksStore.fetchAll(),
-    projectsStore.fetchAll()
-  ])
-
-  // Appliquer les filtres depuis l'URL si présents
+// Appliquer les filtres depuis l'URL si présents
+onMounted(() => {
   const projectId = route.query.projectId as string | undefined
   const priority = route.query.priority as 'high' | 'medium' | 'low' | undefined
 
@@ -171,9 +166,11 @@ onMounted(async () => {
 
     <TasksTaskFilters class="mb-4 sm:mb-6" />
 
-    <div v-if="tasksStore.loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
-    </div>
+    <template v-if="tasksStore.loading">
+      <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+        <TasksTaskItemSkeleton v-for="i in 6" :key="i" />
+      </div>
+    </template>
 
     <UAlert
       v-else-if="tasksStore.error"

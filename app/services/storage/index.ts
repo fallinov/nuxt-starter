@@ -1,4 +1,4 @@
-import { LocalStorageAdapter } from './localStorage'
+import { SupabaseAdapter } from './supabase'
 import type { StorageService } from './types'
 
 export type { StorageService, StorageAdapter } from './types'
@@ -8,10 +8,17 @@ interface BaseEntity {
   createdAt: string
 }
 
-export function createStorageService<T extends BaseEntity>(key: string): StorageService<T> {
-  // Pour passer à une API ou autre backend, remplacer LocalStorageAdapter ici
-  // Exemple: return new ApiAdapter<T>(key)
-  return new LocalStorageAdapter<T>(key)
+// Mapping des clés vers les noms de tables Supabase
+const TABLE_MAPPING = {
+  'nuxt-crud-projects': 'projects',
+  'nuxt-crud-tasks': 'tasks'
+} as const
+
+type StorageKey = keyof typeof TABLE_MAPPING
+
+export function createStorageService<T extends BaseEntity>(key: StorageKey): StorageService<T> {
+  const tableName = TABLE_MAPPING[key]
+  return new SupabaseAdapter<T>(key, tableName)
 }
 
 export const STORAGE_KEYS = {

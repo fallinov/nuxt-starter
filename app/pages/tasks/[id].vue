@@ -10,7 +10,7 @@ const toast = useToast()
 const taskId = computed(() => route.params.id as string)
 const task = computed(() => tasksStore.getById(taskId.value))
 
-const isLoading = ref(true)
+const isLoading = computed(() => tasksStore.loading || projectsStore.loading)
 
 const handleUpdate = async (data: UpdateTask) => {
   try {
@@ -27,18 +27,12 @@ const handleCancel = () => {
   router.push('/tasks')
 }
 
-onMounted(async () => {
-  await Promise.all([
-    tasksStore.fetchAll(),
-    projectsStore.fetchAll()
-  ])
-  isLoading.value = false
-  
-  if (!task.value) {
+watch(isLoading, (loading) => {
+  if (!loading && !task.value) {
     toast.add({ title: 'Erreur', description: 'Tâche non trouvée.', color: 'error' })
     router.push('/tasks')
   }
-})
+}, { immediate: true })
 
 definePageMeta({
   title: 'Modifier la tâche'
@@ -58,9 +52,45 @@ definePageMeta({
       <h1 class="text-2xl font-bold">Modifier la tâche</h1>
     </div>
 
-    <div v-if="isLoading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
-    </div>
+    <UCard v-if="isLoading" class="max-w-2xl">
+      <div class="space-y-6">
+        <!-- Label field skeleton -->
+        <div>
+          <USkeleton class="h-4 w-16 rounded mb-2" />
+          <USkeleton class="h-10 w-full rounded" />
+        </div>
+
+        <!-- Description field skeleton -->
+        <div>
+          <USkeleton class="h-4 w-24 rounded mb-2" />
+          <USkeleton class="h-24 w-full rounded" />
+        </div>
+
+        <!-- Two column fields skeleton -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <USkeleton class="h-4 w-12 rounded mb-2" />
+            <USkeleton class="h-10 w-full rounded" />
+          </div>
+          <div>
+            <USkeleton class="h-4 w-16 rounded mb-2" />
+            <USkeleton class="h-10 w-full rounded" />
+          </div>
+        </div>
+
+        <!-- Project field skeleton -->
+        <div>
+          <USkeleton class="h-4 w-14 rounded mb-2" />
+          <USkeleton class="h-10 w-full rounded" />
+        </div>
+
+        <!-- Buttons skeleton -->
+        <div class="flex justify-end gap-2 pt-4">
+          <USkeleton class="h-10 w-24 rounded" />
+          <USkeleton class="h-10 w-28 rounded" />
+        </div>
+      </div>
+    </UCard>
 
     <UCard v-else-if="task" class="max-w-2xl">
       <TasksTaskForm

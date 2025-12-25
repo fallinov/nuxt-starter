@@ -88,13 +88,6 @@ const handleSetDefault = async (project: Project) => {
     console.error(e)
   }
 }
-
-onMounted(async () => {
-  await Promise.all([
-    projectsStore.fetchAll(),
-    tasksStore.fetchAll()
-  ])
-})
 </script>
 
 <template>
@@ -108,8 +101,8 @@ onMounted(async () => {
       />
     </div>
 
-    <div v-if="projectsStore.loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
+    <div v-if="projectsStore.loading" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <ProjectsProjectCardSkeleton v-for="i in 6" :key="i" />
     </div>
 
     <UAlert
