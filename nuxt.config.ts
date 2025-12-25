@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/supabase'
   ],
 
   devtools: {
@@ -25,5 +26,9 @@ export default defineNuxtConfig({
 
   pinia: {
     storesDirs: ['app/stores']
+  },
+
+  supabase: {
+    redirect: false
   }
 })

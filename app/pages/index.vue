@@ -7,9 +7,6 @@ const toast = useToast()
 const { confirm } = useConfirm()
 const { isToday, isOverdue } = useDateFormat()
 
-const isLoading = ref(true)
-const isDemoLoading = ref(false)
-
 // Modal state
 const isModalOpen = ref(false)
 const modalMode = ref<'view' | 'create'>('view')
@@ -161,42 +158,6 @@ const handleDateSelect = async (newDate: string) => {
     taskToReschedule.value = null
   }
 }
-
-const loadDemoData = async () => {
-  isDemoLoading.value = true
-  try {
-    const { seedData } = await import('../../seeds/demo')
-    
-    await projectsStore.setAll(seedData.projects)
-    await tasksStore.setAll(seedData.tasks)
-    
-    toast.add({ title: 'Données chargées', description: 'Les données de démonstration ont été chargées.', color: 'success' })
-  } catch (e) {
-    toast.add({ title: 'Erreur', description: 'Impossible de charger les données de démonstration.', color: 'error' })
-    console.error(e)
-  } finally {
-    isDemoLoading.value = false
-  }
-}
-
-const clearAllData = async () => {
-  try {
-    await projectsStore.clear()
-    await tasksStore.clear()
-    toast.add({ title: 'Données supprimées', description: 'Toutes les données ont été supprimées.', color: 'success' })
-  } catch (e) {
-    toast.add({ title: 'Erreur', description: 'Impossible de supprimer les données.', color: 'error' })
-    console.error(e)
-  }
-}
-
-onMounted(async () => {
-  await Promise.all([
-    projectsStore.fetchAll(),
-    tasksStore.fetchAll()
-  ])
-  isLoading.value = false
-})
 </script>
 
 <template>
@@ -204,30 +165,41 @@ onMounted(async () => {
     <div>
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold">Dashboard</h1>
-        <div class="flex gap-2">
-          <UButton
-            v-if="stats.projects === 0 && stats.tasks === 0"
-            color="primary"
-            variant="soft"
-            icon="i-lucide-download"
-            label="Charger données démo"
-            :loading="isDemoLoading"
-            @click="loadDemoData"
-          />
-          <UButton
-            v-else
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-trash-2"
-            label="Réinitialiser"
-            @click="clearAllData"
-          />
-        </div>
       </div>
 
-      <div v-if="isLoading" class="flex justify-center py-12">
-        <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
-      </div>
+      <template v-if="projectsStore.loading || tasksStore.loading">
+        <!-- Stats skeletons -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <UiStatCardSkeleton v-for="i in 4" :key="i" />
+        </div>
+
+        <!-- Task list skeleton -->
+        <div class="mb-6">
+          <USkeleton class="h-6 w-32 rounded mb-3" />
+          <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+            <TasksTaskItemSkeleton v-for="i in 4" :key="i" />
+          </div>
+        </div>
+
+        <!-- Projects skeleton -->
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-3">
+            <USkeleton class="h-6 w-24 rounded" />
+            <USkeleton class="h-8 w-20 rounded" />
+          </div>
+          <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <UCard v-for="i in 3" :key="i" class="h-full">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <USkeleton class="size-4 rounded" />
+                  <USkeleton class="h-5 w-24 rounded" />
+                </div>
+                <USkeleton class="h-5 w-6 rounded" />
+              </div>
+            </UCard>
+          </div>
+        </div>
+      </template>
 
       <template v-else>
       <!-- Stats cards -->
@@ -407,8 +379,23 @@ onMounted(async () => {
     </div>
 
     <template #fallback>
-      <div class="flex justify-center py-12">
-        <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
+      <div>
+        <div class="flex items-center justify-between mb-8">
+          <USkeleton class="h-9 w-40 rounded" />
+        </div>
+
+        <!-- Stats skeletons -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <UiStatCardSkeleton v-for="i in 4" :key="i" />
+        </div>
+
+        <!-- Task list skeleton -->
+        <div class="mb-6">
+          <USkeleton class="h-6 w-32 rounded mb-3" />
+          <div class="bg-white dark:bg-gray-900 sm:rounded-lg border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden -mx-2 sm:mx-0">
+            <TasksTaskItemSkeleton v-for="i in 4" :key="i" />
+          </div>
+        </div>
       </div>
     </template>
   </ClientOnly>
