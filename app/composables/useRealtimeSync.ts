@@ -25,7 +25,6 @@ const mapFromDb = <T>(dbRow: Record<string, unknown>): T => {
  */
 export function useRealtimeSync() {
   const client = useSupabaseClient()
-  const user = useSupabaseUser()
   const projectsStore = useProjectsStore()
   const tasksStore = useTasksStore()
 
@@ -72,18 +71,18 @@ export function useRealtimeSync() {
       .subscribe()
   }
 
-  const subscribe = () => {
-    const userId = user.value?.id
-    if (!userId) {
+  const subscribe = async () => {
+    const { data: { user } } = await client.auth.getUser()
+    if (!user?.id) {
       console.warn('Cannot subscribe to realtime: user not authenticated')
       return
     }
 
     // Subscribe to projects table
-    projectsChannel = subscribeToTable('projects', projectsStore, userId)
+    projectsChannel = subscribeToTable('projects', projectsStore, user.id)
 
     // Subscribe to tasks table
-    tasksChannel = subscribeToTable('tasks', tasksStore, userId)
+    tasksChannel = subscribeToTable('tasks', tasksStore, user.id)
   }
 
   const unsubscribe = () => {

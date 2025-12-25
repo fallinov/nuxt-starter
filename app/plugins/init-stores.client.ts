@@ -10,7 +10,7 @@ export default defineNuxtPlugin(() => {
       projectsStore.fetchAll(),
       tasksStore.fetchAll()
     ])
-    subscribe()
+    await subscribe()
   }
 
   // Nettoyer les données quand l'utilisateur se déconnecte
