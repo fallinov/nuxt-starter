@@ -4,7 +4,6 @@ export default defineNuxtPlugin(() => {
   const tasksStore = useTasksStore()
   const { subscribe, unsubscribe } = useRealtimeSync()
 
-  // Charger les données quand l'utilisateur est connecté
   const loadUserData = async () => {
     await Promise.all([
       projectsStore.fetchAll(),
@@ -13,20 +12,19 @@ export default defineNuxtPlugin(() => {
     await subscribe()
   }
 
-  // Nettoyer les données quand l'utilisateur se déconnecte
   const clearUserData = () => {
     unsubscribe()
-    projectsStore.items = []
-    tasksStore.items = []
+    projectsStore.$reset()
+    tasksStore.$reset()
   }
 
-  // Observer les changements d'authentification
-  watch(user, async (newUser, oldUser) => {
-    if (newUser && !oldUser) {
-      // Utilisateur vient de se connecter
+  let isInitialized = false
+  watch(user, async (newUser) => {
+    if (newUser && !isInitialized) {
+      isInitialized = true
       await loadUserData()
-    } else if (!newUser && oldUser) {
-      // Utilisateur vient de se déconnecter
+    } else if (!newUser && isInitialized) {
+      isInitialized = false
       clearUserData()
     }
   }, { immediate: true })

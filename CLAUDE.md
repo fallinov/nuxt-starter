@@ -14,6 +14,7 @@ This starter provides:
 **Tech Stack:**
 - Nuxt 4.x (latest framework)
 - Nuxt UI 4.x (component library)
+- Supabase (backend: Auth, PostgreSQL, Realtime)
 - Tailwind CSS (styling)
 - Pinia 2.x (state management)
 - Zod (schema validation)
@@ -44,15 +45,15 @@ npm run postinstall  # Auto-run by npm (runs `nuxt prepare`)
 
 The `app/` directory contains the main application:
 - **components/** - Vue components organized by domain (projects, tasks, ui)
-- **composables/** - Reusable Vue composables (useConfirm, useNotification)
+- **composables/** - Reusable Vue composables (useConfirm, useNotification, useRealtimeSync, useDateFormat, useDatePresets)
 - **layouts/** - Nuxt layouts (default layout with navigation)
-- **pages/** - Nuxt pages (index, projects, tasks)
-- **services/storage/** - Storage abstraction layer (LocalStorageAdapter)
+- **pages/** - Nuxt pages (index, projects, tasks, login, signup, confirm)
+- **services/storage/** - Storage abstraction layer (SupabaseAdapter, LocalStorageAdapter)
 - **stores/** - Pinia stores (projects, tasks)
 - **types/** - TypeScript types and Zod schemas
 
 Other directories:
-- **seeds/** - Demo/seed data
+- **supabase/** - Database schema (`schema.sql` for initializing Supabase)
 - **tests/** - Vitest unit tests
 
 ## Key Architecture Patterns
@@ -76,11 +77,17 @@ interface StorageAdapter<T> {
   setAll(items: T[]): Promise<void>
 }
 ```
-This allows swapping LocalStorageAdapter for an API adapter without changing application code.
+
+**Current implementation:** `SupabaseAdapter` connects to Supabase PostgreSQL.
+- Automatic user isolation via `user_id` filtering
+- camelCase/snake_case conversion handled transparently
+- `LocalStorageAdapter` available for offline/testing scenarios
 
 ### Data Flow
 ```
-UI (pages/components) → Pinia Stores → StorageAdapter → LocalStorage
+UI (pages/components) → Pinia Stores → StorageAdapter → Supabase (PostgreSQL)
+                                                              ↕
+                                              Realtime (useRealtimeSync)
 ```
 
 ### Pinia Stores
@@ -101,7 +108,23 @@ Tasks store additional features:
 
 ### SSR & Hydration
 - Pages using localStorage must be wrapped in `<ClientOnly>` to avoid hydration errors
-- `LocalStorageAdapter.isClient()` is called on each access (no flag caching)
+- Supabase client is initialized lazily on the client side
+
+### Authentication (Supabase Auth)
+- **`/login`** - Email/password sign-in using `useSupabaseClient().auth.signInWithPassword()`
+- **`/signup`** - Registration with email confirmation
+- **`/confirm`** - Redirect page after email verification
+- `useSupabaseUser()` composable tracks auth state
+- Protected routes redirect to `/login` automatically (configured in `nuxt.config.ts`)
+
+### Realtime Sync
+The `useRealtimeSync` composable enables live synchronization:
+```typescript
+const { subscribe, unsubscribe } = useRealtimeSync()
+await subscribe()  // Listen for INSERT, UPDATE, DELETE on projects/tasks tables
+```
+- Filters by authenticated user's `user_id`
+- Automatically updates Pinia stores when remote changes occur
 
 ### TypeScript Configuration
 - Strict mode enabled in `nuxt.config.ts`
@@ -160,17 +183,16 @@ const TaskSchema = z.object({
 1. **Customize entities:** Modify types in `app/types/` and replace Project/Task with your domain models
 2. **Update stores:** Adapt Pinia stores in `app/stores/` for your entities (copy existing store pattern)
 3. **Create new components:** Build domain-specific components following the naming conventions
-4. **Connect to backend:** Replace `LocalStorageAdapter` with your API adapter (see next section)
-5. **Keep seed data:** Update `seeds/` with your demo data
+4. **Configure Supabase:** Create tables matching your entities, update table names in `app/services/storage/index.ts`
 
-## Switching to API Backend
+## Switching Storage Backend
 
-To replace LocalStorage with a REST API:
+The project currently uses `SupabaseAdapter`. To use a different backend:
 
-1. Create a new adapter in `app/services/storage/apiAdapter.ts`
+1. Create a new adapter implementing `StorageAdapter<T>` in `app/services/storage/`
 2. Modify the factory in `app/services/storage/index.ts`
 3. No changes needed in stores or components thanks to the adapter abstraction
 
-## Demo Data
-
-Click "Charger les données de démo" button on the dashboard to load sample projects and tasks. This demonstrates the full CRUD flow.
+Available adapters:
+- **SupabaseAdapter** - Production (PostgreSQL + Realtime + Auth)
+- **LocalStorageAdapter** - Offline development or testing
