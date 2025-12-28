@@ -33,13 +33,14 @@ export function useRealtimeSync() {
 
   const subscribeToTable = <T extends { id: string }>(
     tableName: TableName,
-    store: { items: T[] }
+    store: { items: T[] },
+    userId: string
   ): RealtimeChannel => {
     return client
-      .channel(`${tableName}-realtime`)
+      .channel(`${tableName}-realtime-${userId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: tableName },
+        { event: 'INSERT', schema: 'public', table: tableName, filter: `user_id=eq.${userId}` },
         (payload) => {
           const newItem = mapFromDb<T>(payload.new as Record<string, unknown>)
           // Only add if not already in store (avoid duplicates from own actions)
@@ -50,7 +51,7 @@ export function useRealtimeSync() {
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: tableName },
+        { event: 'UPDATE', schema: 'public', table: tableName, filter: `user_id=eq.${userId}` },
         (payload) => {
           const updatedItem = mapFromDb<T>(payload.new as Record<string, unknown>)
           const index = store.items.findIndex(item => item.id === updatedItem.id)
@@ -61,7 +62,7 @@ export function useRealtimeSync() {
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: tableName },
+        { event: 'DELETE', schema: 'public', table: tableName, filter: `user_id=eq.${userId}` },
         (payload) => {
           const deletedId = (payload.old as Record<string, unknown>).id as string
           store.items = store.items.filter(item => item.id !== deletedId)
@@ -70,12 +71,18 @@ export function useRealtimeSync() {
       .subscribe()
   }
 
-  const subscribe = () => {
+  const subscribe = async () => {
+    const { data: { user } } = await client.auth.getUser()
+    if (!user?.id) {
+      console.warn('Cannot subscribe to realtime: user not authenticated')
+      return
+    }
+
     // Subscribe to projects table
-    projectsChannel = subscribeToTable('projects', projectsStore)
+    projectsChannel = subscribeToTable('projects', projectsStore, user.id)
 
     // Subscribe to tasks table
-    tasksChannel = subscribeToTable('tasks', tasksStore)
+    tasksChannel = subscribeToTable('tasks', tasksStore, user.id)
   }
 
   const unsubscribe = () => {

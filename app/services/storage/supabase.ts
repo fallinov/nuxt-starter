@@ -25,6 +25,14 @@ export class SupabaseAdapter<T extends BaseEntity> implements StorageAdapter<T> 
     }
   }
 
+  private async getUserId(): Promise<string> {
+    const { data: { user } } = await this.getClient().auth.getUser()
+    if (!user?.id) {
+      throw new Error('User not authenticated')
+    }
+    return user.id
+  }
+
   async getAll(): Promise<T[]> {
     const { data, error } = await this.getClient()
       .from(this.tableName)
@@ -58,7 +66,10 @@ export class SupabaseAdapter<T extends BaseEntity> implements StorageAdapter<T> 
   }
 
   async create(data: Omit<T, 'id' | 'createdAt'>): Promise<T> {
-    const dbData = this.mapToDb(data as Partial<T>)
+    const dbData = {
+      ...this.mapToDb(data as Partial<T>),
+      user_id: await this.getUserId()
+    }
 
     const { data: created, error } = await this.getClient()
       .from(this.tableName)

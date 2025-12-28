@@ -1,14 +1,31 @@
-export default defineNuxtPlugin(async () => {
+export default defineNuxtPlugin(() => {
+  const user = useSupabaseUser()
   const projectsStore = useProjectsStore()
   const tasksStore = useTasksStore()
-  const { subscribe } = useRealtimeSync()
+  const { subscribe, unsubscribe } = useRealtimeSync()
 
-  // Charger les données depuis Supabase au démarrage
-  await Promise.all([
-    projectsStore.fetchAll(),
-    tasksStore.fetchAll()
-  ])
+  const loadUserData = async () => {
+    await Promise.all([
+      projectsStore.fetchAll(),
+      tasksStore.fetchAll()
+    ])
+    await subscribe()
+  }
 
-  // Activer la synchronisation en temps réel
-  subscribe()
+  const clearUserData = () => {
+    unsubscribe()
+    projectsStore.$reset()
+    tasksStore.$reset()
+  }
+
+  let isInitialized = false
+  watch(user, async (newUser) => {
+    if (newUser && !isInitialized) {
+      isInitialized = true
+      await loadUserData()
+    } else if (!newUser && isInitialized) {
+      isInitialized = false
+      clearUserData()
+    }
+  }, { immediate: true })
 })

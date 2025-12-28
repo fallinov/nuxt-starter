@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -26,6 +29,22 @@ const navigation = [
   { label: 'Projets', to: '/projects', icon: 'i-lucide-folder' },
   { label: 'Tâches', to: '/tasks', icon: 'i-lucide-clipboard-list' }
 ]
+
+const userMenuItems = computed(() => [
+  [{
+    label: user.value?.email || 'Utilisateur',
+    icon: 'i-lucide-user',
+    disabled: true
+  }],
+  [{
+    label: 'Déconnexion',
+    icon: 'i-lucide-log-out',
+    onSelect: async () => {
+      await supabase.auth.signOut()
+      navigateTo('/login')
+    }
+  }]
+])
 </script>
 
 <template>
@@ -41,7 +60,17 @@ const navigation = [
       </template>
 
       <template #right>
-        <UColorModeButton />
+        <div class="flex items-center gap-2">
+          <UColorModeButton />
+          <UDropdownMenu v-if="user" :items="userMenuItems" :content="{ align: 'end' }">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-user-circle"
+              aria-label="Menu utilisateur"
+            />
+          </UDropdownMenu>
+        </div>
       </template>
     </UHeader>
 

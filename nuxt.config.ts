@@ -25,10 +25,14 @@ export default defineNuxtConfig({
   },
 
   pinia: {
-    storesDirs: ['app/stores']
+    storesDirs: ['./app/stores']
   },
 
   supabase: {
-    redirect: false
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/login', '/signup', '/confirm']
+    }
   }
 })
