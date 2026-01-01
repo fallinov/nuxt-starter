@@ -146,12 +146,15 @@ const close = () => {
             <!-- Separator -->
             <div class="border-t border-gray-200 dark:border-gray-700 mb-4" />
 
-            <!-- Calendar -->
-            <UCalendar
-              v-model="calendarValue"
-              class="w-full"
-              @update:model-value="onCalendarSelect"
-            />
+            <!-- Calendar with multiple months for scroll -->
+            <div class="calendar-scroll">
+              <UCalendar
+                v-model="calendarValue"
+                :number-of-months="3"
+                class="w-full [&_[data-slot=header]]:hidden"
+                @update:model-value="onCalendarSelect"
+              />
+            </div>
           </div>
         </div>
       </template>
