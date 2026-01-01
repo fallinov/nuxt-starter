@@ -17,7 +17,6 @@ const { datePresets } = useDatePresets()
 
 const isOpen = ref(false)
 const scrollRef = ref<HTMLElement>()
-const calendarRef = ref<InstanceType<typeof UiCalendarScroll>>()
 const isScrolled = ref(false)
 
 const currentDateValue = computed(() => extractDatePart(props.modelValue))
