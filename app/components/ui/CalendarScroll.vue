@@ -175,16 +175,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="calendar-scroll-container h-full flex flex-col">
+  <div class="calendar-scroll-container h-full flex flex-col overflow-hidden">
     <!-- Weekday headers (sticky) -->
-    <div class="weekday-header grid grid-cols-7 text-center text-sm text-gray-500 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 sticky top-0 z-10">
+    <div class="flex-shrink-0 weekday-header grid grid-cols-7 text-center text-sm text-gray-500 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <span v-for="day in WEEKDAYS" :key="day">{{ day }}</span>
     </div>
 
     <!-- Scrollable months -->
     <div
       ref="containerRef"
-      class="months-container overflow-y-auto flex-1"
+      class="months-container flex-1 overflow-y-auto overscroll-contain"
       @scroll="onScroll"
     >
       <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section">
@@ -222,7 +222,7 @@ onMounted(() => {
 }
 
 .months-container {
-  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .month-section {
