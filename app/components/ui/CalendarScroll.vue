@@ -12,7 +12,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-// Generate months to display (start with current month - 1 to current + 12)
+// Generate months to display centered around target date
 const monthsToShow = ref<Date[]>([])
 const containerRef = ref<HTMLElement>()
 
@@ -29,14 +29,24 @@ const selectedDate = computed(() => {
   }
 })
 
-// Initialize months
+// Get target date (selected date or today)
+const getTargetDate = () => {
+  if (selectedDate.value) {
+    return new Date(selectedDate.value.year, selectedDate.value.month - 1, 1)
+  }
+  return new Date()
+}
+
+// Initialize months centered around target date
 const initMonths = () => {
   const months: Date[] = []
-  const today = new Date()
+  const targetDate = getTargetDate()
+  const targetYear = targetDate.getFullYear()
+  const targetMonth = targetDate.getMonth()
 
-  // Start from previous month
-  for (let i = -1; i <= 12; i++) {
-    const date = new Date(today.getFullYear(), today.getMonth() + i, 1)
+  // Generate months: 2 before target to 12 after
+  for (let i = -2; i <= 12; i++) {
+    const date = new Date(targetYear, targetMonth + i, 1)
     months.push(date)
   }
 
@@ -141,6 +151,11 @@ const formatMonthName = (date: Date) => {
   return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 }
 
+// Get month key for data attribute
+const getMonthKey = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
 // Handle scroll (only used when showHeader is true)
 const onScroll = (event: Event) => {
   const target = event.target as HTMLElement
@@ -169,8 +184,37 @@ const selectDate = (date: Date) => {
   emit('update:modelValue', `${year}-${month}-${day}`)
 }
 
+// Scroll to target month (when showHeader is true)
+const scrollToTargetMonth = () => {
+  if (!containerRef.value) return
+
+  const targetDate = getTargetDate()
+  const monthKey = getMonthKey(targetDate)
+  const monthElement = containerRef.value.querySelector(`[data-month="${monthKey}"]`)
+
+  if (monthElement) {
+    monthElement.scrollIntoView({ behavior: 'instant', block: 'start' })
+  }
+}
+
+// Expose method for parent to get target month key
+const getTargetMonthKey = () => {
+  const targetDate = getTargetDate()
+  return getMonthKey(targetDate)
+}
+
+defineExpose({
+  getTargetMonthKey
+})
+
 onMounted(() => {
   initMonths()
+  // Scroll to target month after render (only when we control the scroll)
+  if (props.showHeader) {
+    nextTick(() => {
+      scrollToTargetMonth()
+    })
+  }
 })
 </script>
 
@@ -189,7 +233,12 @@ onMounted(() => {
       style="-webkit-overflow-scrolling: touch;"
       @scroll="onScroll"
     >
-      <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section mb-4">
+      <div
+        v-for="monthDate in monthsToShow"
+        :key="monthDate.toISOString()"
+        :data-month="getMonthKey(monthDate)"
+        class="month-section mb-4"
+      >
         <!-- Month header -->
         <div class="text-sm font-medium text-gray-900 dark:text-gray-100 py-2 px-1 capitalize">
           {{ formatMonthName(monthDate) }}
@@ -219,7 +268,12 @@ onMounted(() => {
 
   <!-- Without header: just months, parent handles scroll -->
   <div v-else class="calendar-months">
-    <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section mb-4">
+    <div
+      v-for="monthDate in monthsToShow"
+      :key="monthDate.toISOString()"
+      :data-month="getMonthKey(monthDate)"
+      class="month-section mb-4"
+    >
       <!-- Month header -->
       <div class="text-sm font-medium text-gray-900 dark:text-gray-100 py-2 px-1 capitalize">
         {{ formatMonthName(monthDate) }}
