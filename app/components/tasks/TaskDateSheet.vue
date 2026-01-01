@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { DateValue } from '@internationalized/date'
+import { CalendarDate } from '@internationalized/date'
+
 interface Props {
   open: boolean
   currentDate: string
@@ -17,8 +20,26 @@ const { datePresets } = useDatePresets()
 const currentDateValue = computed(() => extractDatePart(props.currentDate))
 
 const formattedCurrentDate = computed(() => {
-  if (!currentDateValue.value) return 'Aucune date'
+  if (!currentDateValue.value) return 'Aucune date sélectionnée'
   return formatDateWithYear(currentDateValue.value)
+})
+
+// Convert string date to CalendarDate for the calendar component
+const calendarValue = computed({
+  get: (): DateValue | undefined => {
+    if (!currentDateValue.value) return undefined
+    const parts = currentDateValue.value.split('-').map(Number)
+    const year = parts[0] ?? 0
+    const month = parts[1] ?? 1
+    const day = parts[2] ?? 1
+    return new CalendarDate(year, month, day)
+  },
+  set: (value: DateValue | undefined) => {
+    if (value) {
+      const dateStr = `${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`
+      emit('select', dateStr)
+    }
+  }
 })
 
 const selectPreset = (value: string) => {
@@ -26,9 +47,9 @@ const selectPreset = (value: string) => {
   emit('update:open', false)
 }
 
-const selectDate = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  emit('select', target.value)
+const onCalendarSelect = (value: DateValue) => {
+  const dateStr = `${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`
+  emit('select', dateStr)
   emit('update:open', false)
 }
 
@@ -78,7 +99,7 @@ const confirm = () => {
             <button
               v-for="preset in datePresets"
               :key="preset.value"
-              class="w-full flex items-center justify-between px-4 py-3.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               :class="{ 'bg-primary-50 dark:bg-primary-900/30': currentDateValue === preset.value }"
               @click="selectPreset(preset.value)"
             >
@@ -91,7 +112,7 @@ const confirm = () => {
 
             <!-- No date option -->
             <button
-              class="w-full flex items-center gap-4 px-4 py-3.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              class="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               :class="{ 'bg-primary-50 dark:bg-primary-900/30': !currentDateValue }"
               @click="selectPreset('')"
             >
@@ -103,16 +124,12 @@ const confirm = () => {
           <!-- Separator -->
           <div class="border-t border-gray-200 dark:border-gray-700 my-4" />
 
-          <!-- Calendar input -->
-          <div>
-            <label class="text-sm text-gray-500 mb-2 block">Choisir une date</label>
-            <input
-              type="date"
-              :value="currentDateValue"
-              class="w-full px-4 py-3 text-base bg-gray-100 dark:bg-gray-800 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
-              @change="selectDate"
-            />
-          </div>
+          <!-- Calendar -->
+          <UCalendar
+            v-model="calendarValue"
+            class="w-full"
+            @update:model-value="onCalendarSelect"
+          />
         </div>
       </div>
     </template>

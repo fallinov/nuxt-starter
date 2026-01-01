@@ -125,9 +125,8 @@ onMounted(() => {
         name="dueDate"
         required
       >
-        <UInput
+        <TasksTaskDatePicker
           v-model="state.dueDate"
-          type="date"
         />
       </UFormField>
 
