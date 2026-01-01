@@ -38,7 +38,7 @@ const clearDate = () => {
 </script>
 
 <template>
-  <UPopover v-model:open="isOpen">
+  <UPopover v-model:open="isOpen" :content="{ align: 'start', collisionPadding: 16 }">
     <UButton
       color="neutral"
       variant="ghost"
