@@ -118,15 +118,17 @@ watch(isOpen, (val) => {
         <div class="flex flex-col h-[85vh]">
           <!-- Header - compact when scrolled -->
           <div
-            class="flex-shrink-0 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 transition-all duration-200"
+            class="flex-shrink-0 flex items-center justify-between px-3 border-b border-gray-200 dark:border-gray-700 transition-all duration-200"
             :class="isScrolled ? 'py-2' : 'py-3'"
           >
-            <button
-              class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              size="sm"
+              class="rounded-full"
               @click="close"
-            >
-              <UIcon name="i-lucide-x" class="size-5" />
-            </button>
+            />
 
             <div class="flex flex-col items-center">
               <span class="font-semibold">Date</span>
@@ -139,12 +141,14 @@ watch(isOpen, (val) => {
               </span>
             </div>
 
-            <button
-              class="p-2 -mr-2 rounded-full bg-gray-200 dark:bg-gray-700"
+            <UButton
+              color="primary"
+              variant="solid"
+              icon="i-lucide-check"
+              size="sm"
+              class="rounded-full"
               @click="close"
-            >
-              <UIcon name="i-lucide-check" class="size-5" />
-            </button>
+            />
           </div>
 
           <!-- Scrollable content: everything scrolls together -->
