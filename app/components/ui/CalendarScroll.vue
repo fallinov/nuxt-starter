@@ -34,15 +34,15 @@ const getTargetDate = () => {
   return new Date()
 }
 
-// Initialize months centered around target date
+// Initialize months starting from current month
 const initMonths = () => {
   const months: Date[] = []
   const targetDate = getTargetDate()
   const targetYear = targetDate.getFullYear()
   const targetMonth = targetDate.getMonth()
 
-  // Generate months: 2 before target to 12 after
-  for (let i = -2; i <= 12; i++) {
+  // Generate months: current month to 12 months ahead
+  for (let i = 0; i <= 12; i++) {
     const date = new Date(targetYear, targetMonth + i, 1)
     months.push(date)
   }
