@@ -31,6 +31,9 @@ export function useDatePresets() {
     const daysUntilMonday = (8 - nextMonday.getDay()) % 7 || 7
     nextMonday.setDate(nextMonday.getDate() + daysUntilMonday)
 
+    // First day of next month for "Mois prochain"
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+
     return [
       {
         label: "Aujourd'hui",
@@ -59,6 +62,13 @@ export function useDatePresets() {
         day: getDayName(nextMonday),
         icon: 'i-lucide-arrow-right',
         color: 'text-purple-500'
+      },
+      {
+        label: 'Mois prochain',
+        value: nextMonth.toISOString().split('T')[0] as string,
+        day: getDayName(nextMonth),
+        icon: 'i-lucide-calendar-range',
+        color: 'text-pink-500'
       }
     ]
   })
