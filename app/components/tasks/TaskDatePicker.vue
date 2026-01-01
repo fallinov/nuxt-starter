@@ -57,15 +57,21 @@ const onCalendarSelect = (value: DateValue) => {
   emit('update:modelValue', dateStr)
   isOpen.value = false
 }
+
+const close = () => {
+  isOpen.value = false
+}
 </script>
 
 <template>
-  <UPopover v-model:open="isOpen" :content="{ align: 'start', collisionPadding: 16 }">
+  <div>
+    <!-- Trigger button -->
     <UButton
       color="neutral"
       variant="ghost"
       class="justify-start"
       :disabled="disabled"
+      @click="isOpen = true"
     >
       <template #leading>
         <UIcon
@@ -79,50 +85,76 @@ const onCalendarSelect = (value: DateValue) => {
       </span>
     </UButton>
 
-    <template #content>
-      <div class="p-2">
-        <!-- Header with current selection -->
-        <div class="px-3 py-2 mb-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-center">
-          {{ currentDateValue ? formatDateFull(currentDateValue) : 'Aucune date sélectionnée' }}
-        </div>
+    <!-- Bottom sheet -->
+    <USlideover
+      v-model:open="isOpen"
+      side="bottom"
+    >
+      <template #content>
+        <div class="flex flex-col h-full max-h-[85vh]">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <button
+              class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              @click="close"
+            >
+              <UIcon name="i-lucide-x" class="size-5" />
+            </button>
+            <span class="font-semibold">Date</span>
+            <button
+              class="p-2 -mr-2 rounded-full bg-gray-200 dark:bg-gray-700"
+              @click="close"
+            >
+              <UIcon name="i-lucide-check" class="size-5" />
+            </button>
+          </div>
 
-        <!-- Presets -->
-        <div class="space-y-1 mb-3">
-          <button
-            v-for="preset in datePresets"
-            :key="preset.value"
-            class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            :class="{ 'bg-primary-50 dark:bg-primary-900/30': currentDateValue === preset.value }"
-            @click="selectPreset(preset.value)"
-          >
-            <div class="flex items-center gap-3">
-              <UIcon :name="preset.icon" class="size-5" :class="preset.color" />
-              <span class="text-sm">{{ preset.label }}</span>
+          <!-- Content -->
+          <div class="flex-1 overflow-y-auto p-4">
+            <!-- Current date display -->
+            <div class="px-4 py-3 mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
+              {{ currentDateValue ? formatDateFull(currentDateValue) : 'Aucune date sélectionnée' }}
             </div>
-            <span class="text-xs text-gray-500">{{ preset.day }}</span>
-          </button>
 
-          <!-- No date option -->
-          <button
-            class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            :class="{ 'bg-primary-50 dark:bg-primary-900/30': !currentDateValue }"
-            @click="clearDate"
-          >
-            <UIcon name="i-lucide-ban" class="size-5 text-gray-400" />
-            <span class="text-sm">Aucune date</span>
-          </button>
+            <!-- Presets -->
+            <div class="space-y-1 mb-4">
+              <button
+                v-for="preset in datePresets"
+                :key="preset.value"
+                class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                :class="{ 'bg-primary-50 dark:bg-primary-900/30': currentDateValue === preset.value }"
+                @click="selectPreset(preset.value)"
+              >
+                <div class="flex items-center gap-4">
+                  <UIcon :name="preset.icon" class="size-5" :class="preset.color" />
+                  <span class="text-base">{{ preset.label }}</span>
+                </div>
+                <span class="text-sm text-gray-500">{{ preset.day }}</span>
+              </button>
+
+              <!-- No date option -->
+              <button
+                class="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                :class="{ 'bg-primary-50 dark:bg-primary-900/30': !currentDateValue }"
+                @click="clearDate"
+              >
+                <UIcon name="i-lucide-ban" class="size-5 text-gray-400" />
+                <span class="text-base">Aucune date</span>
+              </button>
+            </div>
+
+            <!-- Separator -->
+            <div class="border-t border-gray-200 dark:border-gray-700 mb-4" />
+
+            <!-- Calendar -->
+            <UCalendar
+              v-model="calendarValue"
+              class="w-full"
+              @update:model-value="onCalendarSelect"
+            />
+          </div>
         </div>
-
-        <!-- Separator -->
-        <div class="border-t border-gray-100 dark:border-gray-800 mb-3" />
-
-        <!-- Calendar -->
-        <UCalendar
-          v-model="calendarValue"
-          class="w-full"
-          @update:model-value="onCalendarSelect"
-        />
-      </div>
-    </template>
-  </UPopover>
+      </template>
+    </USlideover>
+  </div>
 </template>
