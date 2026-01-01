@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
-import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
+import { CalendarDate } from '@internationalized/date'
 
 interface Props {
   modelValue: string
@@ -28,7 +28,10 @@ const isOverdue = computed(() => checkOverdue(props.modelValue))
 const calendarValue = computed({
   get: (): DateValue | undefined => {
     if (!currentDateValue.value) return undefined
-    const [year, month, day] = currentDateValue.value.split('-').map(Number)
+    const parts = currentDateValue.value.split('-').map(Number)
+    const year = parts[0] ?? 0
+    const month = parts[1] ?? 1
+    const day = parts[2] ?? 1
     return new CalendarDate(year, month, day)
   },
   set: (value: DateValue | undefined) => {
