@@ -22,16 +22,6 @@ const isScrolled = ref(false)
 const currentDateValue = computed(() => extractDatePart(props.modelValue))
 const isOverdue = computed(() => checkOverdue(props.modelValue))
 
-// Get target month key for scrolling
-const getTargetMonthKey = () => {
-  if (currentDateValue.value) {
-    const parts = currentDateValue.value.split('-')
-    return `${parts[0]}-${parts[1]}`
-  }
-  const today = new Date()
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
-}
-
 const selectPreset = (value: string) => {
   emit('update:modelValue', value)
   isOpen.value = false
@@ -56,33 +46,10 @@ const onScroll = (event: Event) => {
   isScrolled.value = target.scrollTop > 10
 }
 
-// Scroll to target month when opening
-const scrollToTargetMonth = () => {
-  if (!scrollRef.value) return
-
-  const monthKey = getTargetMonthKey()
-  const monthElement = scrollRef.value.querySelector(`[data-month="${monthKey}"]`)
-
-  if (monthElement) {
-    // Get the position of the month element relative to the scroll container
-    const containerRect = scrollRef.value.getBoundingClientRect()
-    const elementRect = monthElement.getBoundingClientRect()
-    const scrollTop = scrollRef.value.scrollTop + (elementRect.top - containerRect.top) - 60 // 60px offset for presets visibility
-
-    scrollRef.value.scrollTo({ top: Math.max(0, scrollTop), behavior: 'instant' })
-  }
-}
-
 // Reset scroll state when opening
 watch(isOpen, (val) => {
   if (val) {
     isScrolled.value = false
-    // Wait for the calendar to render then scroll to target month
-    nextTick(() => {
-      setTimeout(() => {
-        scrollToTargetMonth()
-      }, 50)
-    })
   }
 })
 </script>

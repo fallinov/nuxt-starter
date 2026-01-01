@@ -29,11 +29,8 @@ const selectedDate = computed(() => {
   }
 })
 
-// Get target date (selected date or today)
+// Always start from today (current week)
 const getTargetDate = () => {
-  if (selectedDate.value) {
-    return new Date(selectedDate.value.year, selectedDate.value.month - 1, 1)
-  }
   return new Date()
 }
 
