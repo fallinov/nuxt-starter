@@ -1,18 +1,18 @@
 <script setup lang="ts">
 interface Props {
   modelValue?: string
+  showHeader?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  showHeader: true
+})
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const { getDayName } = useDateFormat()
-
 // Generate months to display (start with current month - 1 to current + 12)
-const baseDate = ref(new Date())
 const monthsToShow = ref<Date[]>([])
 const containerRef = ref<HTMLElement>()
 
@@ -141,7 +141,7 @@ const formatMonthName = (date: Date) => {
   return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 }
 
-// Handle scroll
+// Handle scroll (only used when showHeader is true)
 const onScroll = (event: Event) => {
   const target = event.target as HTMLElement
 
@@ -175,26 +175,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="calendar-scroll-container h-full flex flex-col overflow-hidden">
-    <!-- Weekday headers (sticky) -->
-    <div class="flex-shrink-0 weekday-header grid grid-cols-7 text-center text-sm text-gray-500 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+  <!-- With header: full container with own scroll -->
+  <div v-if="showHeader" class="calendar-scroll-container h-full flex flex-col overflow-hidden">
+    <!-- Weekday headers -->
+    <div class="flex-shrink-0 grid grid-cols-7 text-center text-sm text-gray-500 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <span v-for="day in WEEKDAYS" :key="day">{{ day }}</span>
     </div>
 
     <!-- Scrollable months -->
     <div
       ref="containerRef"
-      class="months-container flex-1 overflow-y-auto overscroll-contain"
+      class="flex-1 overflow-y-auto overscroll-contain"
+      style="-webkit-overflow-scrolling: touch;"
       @scroll="onScroll"
     >
-      <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section">
+      <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section mb-4">
         <!-- Month header -->
-        <div class="month-header text-sm font-medium text-gray-900 dark:text-gray-100 py-2 px-1 capitalize sticky top-0 bg-white dark:bg-gray-900">
+        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 py-2 px-1 capitalize">
           {{ formatMonthName(monthDate) }}
         </div>
 
         <!-- Days grid -->
-        <div class="days-grid grid grid-cols-7 gap-1">
+        <div class="grid grid-cols-7 gap-1">
           <button
             v-for="(dayInfo, index) in getDaysInMonth(monthDate)"
             :key="index"
@@ -214,19 +216,40 @@ onMounted(() => {
       </div>
     </div>
   </div>
+
+  <!-- Without header: just months, parent handles scroll -->
+  <div v-else class="calendar-months">
+    <div v-for="monthDate in monthsToShow" :key="monthDate.toISOString()" class="month-section mb-4">
+      <!-- Month header -->
+      <div class="text-sm font-medium text-gray-900 dark:text-gray-100 py-2 px-1 capitalize">
+        {{ formatMonthName(monthDate) }}
+      </div>
+
+      <!-- Days grid -->
+      <div class="grid grid-cols-7 gap-1">
+        <button
+          v-for="(dayInfo, index) in getDaysInMonth(monthDate)"
+          :key="index"
+          class="day-cell aspect-square flex items-center justify-center text-sm rounded-full transition-colors"
+          :class="{
+            'text-gray-300 dark:text-gray-600': !dayInfo.isCurrentMonth,
+            'text-gray-900 dark:text-gray-100': dayInfo.isCurrentMonth && !dayInfo.isToday && !dayInfo.isSelected,
+            'bg-red-500 text-white': dayInfo.isToday && !dayInfo.isSelected,
+            'bg-primary text-white': dayInfo.isSelected,
+            'hover:bg-gray-100 dark:hover:bg-gray-800': !dayInfo.isToday && !dayInfo.isSelected
+          }"
+          @click="selectDate(dayInfo.date)"
+        >
+          {{ dayInfo.day }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .calendar-scroll-container {
   width: 100%;
-}
-
-.months-container {
-  -webkit-overflow-scrolling: touch;
-}
-
-.month-section {
-  margin-bottom: 1rem;
 }
 
 .day-cell {
